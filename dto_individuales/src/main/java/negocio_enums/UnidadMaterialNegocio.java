@@ -10,4 +10,10 @@ package negocio_enums;
  */
 public enum UnidadMaterialNegocio {
     
+    KILOGRAMO,
+    METRO_CUBICO,
+    PIEZA,
+    LITRO,
+    METRO;
+    
 }

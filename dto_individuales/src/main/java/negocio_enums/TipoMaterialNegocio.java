@@ -10,4 +10,23 @@ package negocio_enums;
  */
 public enum TipoMaterialNegocio {
     
+    CEMENTO(UnidadMaterialNegocio.KILOGRAMO),
+    ARENA(UnidadMaterialNegocio.METRO_CUBICO),
+    GRAVA(UnidadMaterialNegocio.METRO_CUBICO),
+    LADRILLO(UnidadMaterialNegocio.PIEZA),
+    CLAVO(UnidadMaterialNegocio.PIEZA),
+    PINTURA(UnidadMaterialNegocio.LITRO),
+    MADERA(UnidadMaterialNegocio.METRO),
+    RESINA(UnidadMaterialNegocio.LITRO);
+    
+    private UnidadMaterialNegocio unidad;
+    
+    private TipoMaterialNegocio(UnidadMaterialNegocio unidad) {
+        this.unidad = unidad;
+    }
+    
+    public UnidadMaterialNegocio getUnidad() {
+        return unidad;
+    }
+    
 }
