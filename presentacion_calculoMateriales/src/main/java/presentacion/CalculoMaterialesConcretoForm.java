@@ -4,12 +4,21 @@
  */
 package presentacion;
 
+import excepciones.PresentacionException;
+import negocio_dto.CalculoDTO;
+import negocio_dto.ElementoDTO;
+import negocio_dto.MaterialCalculoDTO;
+import negocio_enums.TipoMaterialNegocio;
+import utilities.Utilities;
+
 /**
+ * Formulario de la capa de presentación que muestra los resultados del cálculo
+ * de materiales para los elementos de concreto.
  *
  * @author Alejandra García Preciado - 252444
  */
 public class CalculoMaterialesConcretoForm extends javax.swing.JFrame {
-    
+
     /**
      * Referencia al coordinador de aplicación. Permite la navegación entre los
      * distintos formularios del sistema.
@@ -23,12 +32,89 @@ public class CalculoMaterialesConcretoForm extends javax.swing.JFrame {
     private CoordinadorNegocio coordinadorNegocio;
 
     /**
+     * Cálculo generado para el elemento actual.
+     */
+    private CalculoDTO calculoActual;
+
+    /**
      * Creates new form CalculoMaterialesForm
      */
     public CalculoMaterialesConcretoForm() {
         initComponents();
         this.coordinador = CoordinadorAplicacion.getInstancia();
         this.coordinadorNegocio = CoordinadorNegocio.getInstancia();
+
+        // Centrar la ventana
+        this.setLocationRelativeTo(null);
+
+        // Cargar los resultados del cálculo
+        cargarResultadosCalculo();
+    }
+
+    /**
+     * Carga los resultados del cálculo de materiales y los muestra en los
+     * campos correspondientes.
+     */
+    private void cargarResultadosCalculo() {
+        try {
+            // Obtener el elemento actual del coordinador
+            ElementoDTO elemento = coordinadorNegocio.getElementoActual();
+
+            if (elemento == null) {
+                Utilities.mostrarMensajeError("No se ha encontrado el elemento para realizar el cálculo.");
+                this.dispose();
+                coordinador.mostrarSeleccionDatos();
+                return;
+            }
+
+            // Generar el reporte de cálculo
+            this.calculoActual = coordinadorNegocio.generarReporteCalculo(elemento);
+
+            if (calculoActual == null) {
+                Utilities.mostrarMensajeError("Error al generar el cálculo de materiales.");
+                this.dispose();
+                coordinador.mostrarSeleccionDatos();
+                return;
+            }
+
+            // Mostrar la información del cálculo
+            campoTipoElemento.setText(elemento.getTipo().toString().replace("_", " "));
+            campoVolumenElemento.setText(Utilities.formatearDecimal(calculoActual.getVolumenCalculado()) + " m³");
+
+            // Mostrar las cantidades de materiales calculados
+            for (MaterialCalculoDTO material : calculoActual.getMaterialesCalculados()) {
+                switch (material.getTipo()) {
+                    case CEMENTO:
+                        campoCementoRequerido.setText(Utilities.formatearDecimal(material.getCantidadCalculada()) + " kg");
+                        break;
+                    case AGUA:
+                        campoAgua.setText(Utilities.formatearDecimal(material.getCantidadCalculada() * 0.5) + " litros"); // Estimación
+                        break;
+                    case ARENA:
+                        campoArena.setText(Utilities.formatearDecimal(material.getCantidadCalculada()) + " m³");
+                        break;
+                    case GRAVA:
+                        campoGrava.setText(Utilities.formatearDecimal(material.getCantidadCalculada()) + " m³");
+                        break;
+                }
+            }
+
+            // Si la cantidad de agua no se ha calculado, estimarla basada en el cemento
+            if (campoAgua.getText().isEmpty()) {
+                for (MaterialCalculoDTO material : calculoActual.getMaterialesCalculados()) {
+                    if (material.getTipo() == TipoMaterialNegocio.CEMENTO) {
+                        double agua = material.getCantidadCalculada() * 0.5; // Relación agua/cemento de 0.5
+                        campoAgua.setText(Utilities.formatearDecimal(agua) + " litros");
+                        break;
+                    }
+                }
+            }
+
+        } catch (PresentacionException ex) {
+            Utilities.mostrarMensajeError("Error al cargar los resultados: " + ex.getMessage());
+            this.dispose();
+            coordinador.mostrarSeleccionDatos();
+        }
     }
 
     /**
@@ -374,7 +460,10 @@ public class CalculoMaterialesConcretoForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
-
+        if (Utilities.mostrarConfirmacion("¿Desea volver a la selección de elementos?")) {
+            this.dispose();
+            coordinador.mostrarSeleccionDatos();
+        }
     }//GEN-LAST:event_btnVolverActionPerformed
 
     private void btnDescargarPDFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDescargarPDFActionPerformed

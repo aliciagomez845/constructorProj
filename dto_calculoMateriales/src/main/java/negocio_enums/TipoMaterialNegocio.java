@@ -13,6 +13,7 @@ public enum TipoMaterialNegocio {
     CEMENTO(UnidadMaterialNegocio.KILOGRAMO),
     ARENA(UnidadMaterialNegocio.METRO_CUBICO),
     GRAVA(UnidadMaterialNegocio.METRO_CUBICO),
+    AGUA(UnidadMaterialNegocio.LITRO),
     LADRILLO(UnidadMaterialNegocio.PIEZA),
     CLAVO(UnidadMaterialNegocio.PIEZA),
     PINTURA(UnidadMaterialNegocio.LITRO),
