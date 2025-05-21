@@ -11,15 +11,14 @@ package dominio_enums;
  * referencia para manejar cantidades de materiales en el sistema. Puede
  * utilizarse para el objeto material o cuando se utilizan cálculos.
  *
- * @author rocha
- * @author alega
+ * @author Isabel Valenzuela Rocha - 253301
+ * @author Alejandra García Preciado - 252444
  */
 public enum UnidadMaterialDatos {
-    
-    KILOGRAMO, 
-    METRO_CUBICO, 
-    PIEZA, 
-    LITRO, 
+    KILOGRAMO,
+    METRO_CUBICO,
+    PIEZA,
+    LITRO,
     METRO;
-    
+
 }

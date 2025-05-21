@@ -14,8 +14,8 @@ package dominio_enums;
  * materiales y definir su unidad de medida estándar, facilitando así
  * operaciones como almacenamiento, consultas y generación de reportes.
  *
- * @author 00000253301 Isabel Valenzuela Rocha
- * @author alega
+ * @author Isabel Valenzuela Rocha - 253301
+ * @author Alejandra García Preciado - 252444
  */
 public enum TipoMaterialDatos {
     

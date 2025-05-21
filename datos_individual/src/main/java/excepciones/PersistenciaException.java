@@ -7,6 +7,11 @@ package excepciones;
 /**
  * Clase para el manejo de Excepciones en la capa de Persistencia.
  *
+ * Esta clase extiende de Exception y se utiliza para encapsular y propagar
+ * errores específicos que pueden ocurrir durante las operaciones con la base de
+ * datos, como problemas de conexión, errores de consulta, restricciones de
+ * integridad, etc.
+ *
  * @author Alejandra García Preciado - 252444
  */
 public class PersistenciaException extends Exception {

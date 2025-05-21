@@ -13,4 +13,11 @@
         <exec.mainClass>com.mycompany.datos_individual.Datos_individual</exec.mainClass>
     </properties>
     <name>datos_individual</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>4.11.1</version>
+        </dependency>
+    </dependencies>
 </project>
