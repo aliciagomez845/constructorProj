@@ -6,18 +6,23 @@
         <artifactId>buildcontrol_calculoMateriales</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>datos_individual</artifactId>
+    <artifactId>bo_calculoMateriales</artifactId>
     <packaging>jar</packaging>
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
-        <exec.mainClass>com.mycompany.datos_individual.Datos_individual</exec.mainClass>
+        <exec.mainClass>com.mycompany.bo_individuales.Bo_individuales</exec.mainClass>
     </properties>
-    <name>datos_individual</name>
+    <name>bo_calculoMateriales</name>
     <dependencies>
         <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-sync</artifactId>
-            <version>4.11.1</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>datos_calculoMateriales</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>dto_calculoMateriales</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

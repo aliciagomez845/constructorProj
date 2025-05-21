@@ -6,22 +6,11 @@
         <artifactId>buildcontrol_calculoMateriales</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>bo_individuales</artifactId>
+    <artifactId>dto_calculoMateriales</artifactId>
     <packaging>jar</packaging>
-    <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>dto_individuales</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>datos_individual</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
-        <exec.mainClass>com.mycompany.bo_individuales.Bo_individuales</exec.mainClass>
+        <exec.mainClass>com.mycompany.dto_individuales.Dto_individuales</exec.mainClass>
     </properties>
+    <name>dto_calculoMateriales</name>
 </project>

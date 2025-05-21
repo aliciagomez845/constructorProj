@@ -6,11 +6,11 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>dto_individuales</module>
-        <module>bo_individuales</module>
         <module>negocios_admCalculoMateriales</module>
-        <module>presentacion_individual</module>
-        <module>datos_individual</module>
+        <module>dto_calculoMateriales</module>
+        <module>bo_calculoMateriales</module>
+        <module>datos_calculoMateriales</module>
+        <module>presentacion_calculoMateriales</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

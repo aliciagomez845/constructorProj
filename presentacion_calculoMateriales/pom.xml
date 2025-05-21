@@ -6,10 +6,11 @@
         <artifactId>buildcontrol_calculoMateriales</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>presentacion_individual</artifactId>
+    <artifactId>presentacion_calculoMateriales</artifactId>
     <packaging>jar</packaging>
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <exec.mainClass>com.mycompany.presentacion_individual.Presentacion_individual</exec.mainClass>
     </properties>
+    <name>presentacion_calculoMateriales</name>
 </project>

@@ -9,44 +9,38 @@ import admObraSeleccionada.IAdmObraSeleccionada;
 import bo.CalculoBO;
 import bo.ElementoBO;
 import bo.MaterialCalculoBO;
-import bo.ObraBO;
 
 /**
- * Clase control ControlAdmCalculoMateriales.
+ * Controlador del subsistema admCalculoMateriales.
  *
- * Clase que controla la lógica del caso de uso "Cálculo de Materiales" en el sistema.
- * Utiliza diversas clases BO (Business Object) para delegar operaciones
- * específicas, y mantiene comunicación con el subsistema de obra seleccionada.
- * 
+ * Esta clase gestiona la lógica de control relacionada con los cálculos de
+ * materiales para elementos constructivos. Sirve como intermediario entre la
+ * capa de presentación y las clases de negocio (BO), específicamente para
+ * calcular materiales, guardar resultados y generar reportes.
+ *
  * @author Alejandra García Preciado - 252444
  */
 public class ControlAdmCalculoMateriales {
-    
-    /**
-     * Instancia del subsistema de obra seleccionada de la sesión. Se utiliza
-     * para determinar a qué obra se está asociando el cálculo de materiales.
-     */
-    private IAdmObraSeleccionada admObraSeleccionada;
 
     /**
-     * BO para las operaciones de relacionadas a los calculos.
+     * Interfaz para acceder al subsistema de obra seleccionada.
      */
-    private CalculoBO calculoBO;
+    private final IAdmObraSeleccionada admObraSeleccionada;
 
     /**
-     * BO para las operaciones relacionadas a elementos.
+     * Objeto de negocio encargado de la lógica relacionada con los cálculos.
      */
-    private ElementoBO elementoBO;
+    private final CalculoBO calculoBO;
 
     /**
-     * BO para las operaciones relacionadas a los materiales necesarios.
+     * Objeto de negocio encargado de la lógica relacionada con los elementos.
      */
-    private MaterialCalculoBO materialCalculoBO;
+    private final ElementoBO elementoBO;
 
     /**
-     * BO para las operaciones relacionadas a las obras.
+     * Objeto de negocio encargado de la lógica relacionada con los materiales.
      */
-    private ObraBO obraBO;
+    private final MaterialCalculoBO materialCalculoBO;
 
     /**
      * Constructor que inicializa las instancias de los BOs e interfaces
@@ -58,7 +52,6 @@ public class ControlAdmCalculoMateriales {
         this.calculoBO = CalculoBO.getInstance();
         this.elementoBO = ElementoBO.getInstance();
         this.materialCalculoBO = MaterialCalculoBO.getInstance();
-        this.obraBO = ObraBO.getInstance();
     }
-    
+
 }

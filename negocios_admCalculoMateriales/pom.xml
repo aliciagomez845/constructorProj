@@ -16,7 +16,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bo_individuales</artifactId>
+            <artifactId>bo_calculoMateriales</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
