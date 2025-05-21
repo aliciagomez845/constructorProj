@@ -4,12 +4,17 @@
  */
 package presentacion;
 
+import utilities.Utilities;
+
 /**
+ * Formulario de la capa de presentación que permite al usuario iniciar el
+ * proceso de cálculo de materiales por elemento constructivo ingresando la
+ * dirección de la obra y seleccionando la actividad.
  *
  * @author Alejandra García Preciado - 252444
  */
 public class SeleccionDatosForm extends javax.swing.JFrame {
-    
+
     /**
      * Referencia al coordinador de aplicación. Permite la navegación entre los
      * distintos formularios del sistema.
@@ -29,6 +34,59 @@ public class SeleccionDatosForm extends javax.swing.JFrame {
         initComponents();
         this.coordinador = CoordinadorAplicacion.getInstancia();
         this.coordinadorNegocio = CoordinadorNegocio.getInstancia();
+
+        // Centrar la ventana
+        this.setLocationRelativeTo(null);
+
+        // Agregar listeners para los checkboxes para que solo se pueda seleccionar uno
+        agregarListenerCheckboxes();
+    }
+
+    /**
+     * Agrega listeners a los checkboxes para que solo sea posible seleccionar
+     * uno a la vez.
+     */
+    private void agregarListenerCheckboxes() {
+        jcbConcreto.addActionListener((e) -> {
+            if (jcbConcreto.isSelected()) {
+                jcbMorterosNivelacion.setSelected(false);
+                jcbMorterosMamposteria.setSelected(false);
+            }
+        });
+
+        jcbMorterosNivelacion.addActionListener((e) -> {
+            if (jcbMorterosNivelacion.isSelected()) {
+                jcbConcreto.setSelected(false);
+                jcbMorterosMamposteria.setSelected(false);
+            }
+        });
+
+        jcbMorterosMamposteria.addActionListener((e) -> {
+            if (jcbMorterosMamposteria.isSelected()) {
+                jcbConcreto.setSelected(false);
+                jcbMorterosNivelacion.setSelected(false);
+            }
+        });
+    }
+
+    /**
+     * Valida que se haya ingresado la dirección y seleccionado una actividad.
+     *
+     * @return true si los datos son válidos, false en caso contrario
+     */
+    private boolean validarDatos() {
+        // Validar que la dirección no esté vacía
+        if (!Utilities.validarCampoNoVacio(campoDireccion, "Dirección de la Obra")) {
+            return false;
+        }
+
+        // Validar que se haya seleccionado una actividad
+        if (!jcbConcreto.isSelected() && !jcbMorterosNivelacion.isSelected() && !jcbMorterosMamposteria.isSelected()) {
+            Utilities.mostrarMensajeError("Debe seleccionar una actividad.");
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -166,11 +224,35 @@ public class SeleccionDatosForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnContinuarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnContinuarActionPerformed
-        
+        if (!validarDatos()) {
+            return;
+        }
+
+        try {
+            // Guardar la dirección de la obra en algún lugar para su uso posterior
+            String direccionObra = campoDireccion.getText().trim();
+
+            // Determinar qué actividad fue seleccionada y dirigir al usuario a la pantalla correspondiente
+            if (jcbConcreto.isSelected()) {
+                this.dispose();
+                coordinador.mostrarIngresoDimensionesConcreto();
+            } else if (jcbMorterosNivelacion.isSelected()) {
+                this.dispose();
+                coordinador.mostrarIngresoDimensionesNivelacion();
+            } else if (jcbMorterosMamposteria.isSelected()) {
+                this.dispose();
+                coordinador.mostrarIngresoDimensionesMamposteria();
+            }
+        } catch (Exception ex) {
+            Utilities.mostrarMensajeError("Error al continuar: " + ex.getMessage());
+        }
     }//GEN-LAST:event_btnContinuarActionPerformed
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
-        // TODO add your handling code here:
+        if (Utilities.mostrarConfirmacion("¿Desea volver a la página de inicio? Los datos ingresados se perderán.")) {
+            this.dispose();
+            coordinador.mostrarInicioCalculos();
+        }
     }//GEN-LAST:event_btnVolverActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -4,12 +4,19 @@
  */
 package presentacion;
 
+import negocio_dto.ElementoDTO;
+import negocio_enums.TipoElementoNegocio;
+import utilities.Utilities;
+
 /**
+ * Formulario de la capa de presentación que permite al usuario continuar con el
+ * proceso de cálculo de materiales por elemento constructivo seleccionando el
+ * elemento que desea calcular e ingresando sus dimensiones.
  *
  * @author Alejandra García Preciado - 252444
  */
 public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
-    
+
     /**
      * Referencia al coordinador de aplicación. Permite la navegación entre los
      * distintos formularios del sistema.
@@ -29,6 +36,270 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
         initComponents();
         this.coordinador = CoordinadorAplicacion.getInstancia();
         this.coordinadorNegocio = CoordinadorNegocio.getInstancia();
+
+        // Centrar la ventana
+        this.setLocationRelativeTo(null);
+
+        // Agregar listeners para los checkbox para que solo se pueda seleccionar uno
+        agregarListenerCheckboxes();
+
+        // Inicialmente deshabilitar todos los campos de dimensiones
+        deshabilitarTodosCampos();
+    }
+
+    /**
+     * Agrega listeners a los checkbox para que solo sea posible seleccionar uno
+     * a la vez y habilitar los campos correspondientes.
+     */
+    private void agregarListenerCheckboxes() {
+        jcbColumna.addActionListener((e) -> {
+            if (jcbColumna.isSelected()) {
+
+                // Deshabilitar los otros checkbox
+                jcbLosaContrapiso.setSelected(false);
+                jcbLosaEntrepiso.setSelected(false);
+                jcbVigas.setSelected(false);
+
+                // Deshabilitar todos los campos primero
+                deshabilitarTodosCampos();
+
+                // Habilitar solo los campos necesarios para columna
+                habilitarCamposColumna();
+            } else {
+                // Si se "des selecciona", deshabilitar los campos
+                deshabilitarCamposColumna();
+            }
+        });
+
+        jcbLosaContrapiso.addActionListener((e) -> {
+            if (jcbLosaContrapiso.isSelected()) {
+
+                // Deshabilitar los otros checkbox
+                jcbColumna.setSelected(false);
+                jcbLosaEntrepiso.setSelected(false);
+                jcbVigas.setSelected(false);
+
+                // Deshabilitar todos los campos primero
+                deshabilitarTodosCampos();
+
+                // Habilitar solo los campos necesarios para losa de contrapiso
+                habilitarCamposLosaContrapiso();
+            } else {
+                // Si se "des selecciona", deshabilitar los campos
+                deshabilitarCamposLosaContrapiso();
+            }
+        });
+
+        jcbLosaEntrepiso.addActionListener((e) -> {
+            if (jcbLosaEntrepiso.isSelected()) {
+
+                // Deshabilitar los otros checkbox
+                jcbColumna.setSelected(false);
+                jcbLosaContrapiso.setSelected(false);
+                jcbVigas.setSelected(false);
+
+                // Deshabilitar todos los campos primero
+                deshabilitarTodosCampos();
+
+                // Habilitar solo los campos necesarios para losa de entrepiso
+                habilitarCamposLosaEntrepiso();
+            } else {
+                // Si se "des selecciona", deshabilitar los campos
+                deshabilitarCamposLosaEntrepiso();
+            }
+        });
+
+        jcbVigas.addActionListener((e) -> {
+            if (jcbVigas.isSelected()) {
+
+                // Deshabilitar los otros checkbox
+                jcbColumna.setSelected(false);
+                jcbLosaContrapiso.setSelected(false);
+                jcbLosaEntrepiso.setSelected(false);
+
+                // Deshabilitar todos los campos primero
+                deshabilitarTodosCampos();
+
+                // Habilitar solo los campos necesarios para vigas
+                habilitarCamposVigas();
+            } else {
+                // Si se "des selecciona", deshabilitar los campos
+                deshabilitarCamposVigas();
+            }
+        });
+    }
+
+    // Métodos para habilitar y deshabilitar campos según el elemento seleccionado
+    private void deshabilitarTodosCampos() {
+        // Columna
+        campoAltoColumna.setEnabled(false);
+        campoAnchoColumna.setEnabled(false);
+        campoEspesorColumna.setEnabled(false);
+
+        // Losa de contrapiso
+        campoLargoLosaContrapiso.setEnabled(false);
+        campoAnchoLosaContrapiso.setEnabled(false);
+        campoaEspesorLosaContrapiso.setEnabled(false);
+
+        // Losa de entrepiso
+        campoLargoLosaEntrepiso.setEnabled(false);
+        campoAnchoLosaEntrepiso.setEnabled(false);
+        campoEspesorLosaEntrepiso.setEnabled(false);
+
+        // Vigas
+        campoLargoVigas.setEnabled(false);
+        campoAnchoVigas.setEnabled(false);
+        campoEspesorVigas.setEnabled(false);
+    }
+
+    private void habilitarCamposColumna() {
+        campoAltoColumna.setEnabled(true);
+        campoAnchoColumna.setEnabled(true);
+        campoEspesorColumna.setEnabled(true);
+    }
+
+    private void deshabilitarCamposColumna() {
+        campoAltoColumna.setEnabled(false);
+        campoAnchoColumna.setEnabled(false);
+        campoEspesorColumna.setEnabled(false);
+    }
+
+    private void habilitarCamposLosaContrapiso() {
+        campoLargoLosaContrapiso.setEnabled(true);
+        campoAnchoLosaContrapiso.setEnabled(true);
+        campoaEspesorLosaContrapiso.setEnabled(true);
+    }
+
+    private void deshabilitarCamposLosaContrapiso() {
+        campoLargoLosaContrapiso.setEnabled(false);
+        campoAnchoLosaContrapiso.setEnabled(false);
+        campoaEspesorLosaContrapiso.setEnabled(false);
+    }
+
+    private void habilitarCamposLosaEntrepiso() {
+        campoLargoLosaEntrepiso.setEnabled(true);
+        campoAnchoLosaEntrepiso.setEnabled(true);
+        campoEspesorLosaEntrepiso.setEnabled(true);
+    }
+
+    private void deshabilitarCamposLosaEntrepiso() {
+        campoLargoLosaEntrepiso.setEnabled(false);
+        campoAnchoLosaEntrepiso.setEnabled(false);
+        campoEspesorLosaEntrepiso.setEnabled(false);
+    }
+
+    private void habilitarCamposVigas() {
+        campoLargoVigas.setEnabled(true);
+        campoAnchoVigas.setEnabled(true);
+        campoEspesorVigas.setEnabled(true);
+    }
+
+    private void deshabilitarCamposVigas() {
+        campoLargoVigas.setEnabled(false);
+        campoAnchoVigas.setEnabled(false);
+        campoEspesorVigas.setEnabled(false);
+    }
+
+    /**
+     * Valida que se haya seleccionado un elemento y que se hayan ingresado
+     * todas las dimensiones requeridas.
+     *
+     * @return true si los datos son válidos, false en caso contrario
+     */
+    private boolean validarDatos() {
+        // Validar que se haya seleccionado un elemento
+        if (!jcbColumna.isSelected() && !jcbLosaContrapiso.isSelected()
+                && !jcbLosaEntrepiso.isSelected() && !jcbVigas.isSelected()) {
+            Utilities.mostrarMensajeError("Debe seleccionar un elemento.");
+            return false;
+        }
+
+        // Validar que se hayan ingresado todas las dimensiones requeridas
+        if (jcbColumna.isSelected()) {
+            if (!Utilities.validarCampoNumericoPositivo(campoAltoColumna, "Alto (Columna)")) {
+                return false;
+            }
+            if (!Utilities.validarCampoNumericoPositivo(campoAnchoColumna, "Ancho (Columna)")) {
+                return false;
+            }
+            if (!Utilities.validarCampoNumericoPositivo(campoEspesorColumna, "Espesor (Columna)")) {
+                return false;
+            }
+        } else if (jcbLosaContrapiso.isSelected()) {
+            if (!Utilities.validarCampoNumericoPositivo(campoLargoLosaContrapiso, "Largo (Losa Contrapiso)")) {
+                return false;
+            }
+            if (!Utilities.validarCampoNumericoPositivo(campoAnchoLosaContrapiso, "Ancho (Losa Contrapiso)")) {
+                return false;
+            }
+            if (!Utilities.validarCampoNumericoPositivo(campoaEspesorLosaContrapiso, "Espesor (Losa Contrapiso)")) {
+                return false;
+            }
+        } else if (jcbLosaEntrepiso.isSelected()) {
+            if (!Utilities.validarCampoNumericoPositivo(campoLargoLosaEntrepiso, "Largo (Losa Entrepiso)")) {
+                return false;
+            }
+            if (!Utilities.validarCampoNumericoPositivo(campoAnchoLosaEntrepiso, "Ancho (Losa Entrepiso)")) {
+                return false;
+            }
+            if (!Utilities.validarCampoNumericoPositivo(campoEspesorLosaEntrepiso, "Espesor (Losa Entrepiso)")) {
+                return false;
+            }
+        } else if (jcbVigas.isSelected()) {
+            if (!Utilities.validarCampoNumericoPositivo(campoLargoVigas, "Largo (Vigas)")) {
+                return false;
+            }
+            if (!Utilities.validarCampoNumericoPositivo(campoAnchoVigas, "Ancho (Vigas)")) {
+                return false;
+            }
+            if (!Utilities.validarCampoNumericoPositivo(campoEspesorVigas, "Espesor (Vigas)")) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Crea un objeto ElementoDTO a partir de los datos ingresados.
+     *
+     * @return ElementoDTO con los datos del elemento seleccionado
+     */
+    private ElementoDTO crearElementoDTO() {
+        ElementoDTO elemento = new ElementoDTO();
+
+        // Establecer el tipo de elemento y las dimensiones correspondientes
+        if (jcbColumna.isSelected()) {
+            elemento.setTipo(TipoElementoNegocio.COLUMNA_CUADRADA);
+            elemento.setAlto(Double.valueOf(campoAltoColumna.getText().trim()));
+            elemento.setAncho(Double.valueOf(campoAnchoColumna.getText().trim()));
+            elemento.setEspesor(Double.valueOf(campoEspesorColumna.getText().trim()));
+            elemento.setLargo(0.0);
+            elemento.setProfundidad(0.0);
+        } else if (jcbLosaContrapiso.isSelected()) {
+            elemento.setTipo(TipoElementoNegocio.LOSA_CONTRAPISO);
+            elemento.setLargo(Double.valueOf(campoLargoLosaContrapiso.getText().trim()));
+            elemento.setAncho(Double.valueOf(campoAnchoLosaContrapiso.getText().trim()));
+            elemento.setEspesor(Double.valueOf(campoaEspesorLosaContrapiso.getText().trim()));
+            elemento.setAlto(0.0);
+            elemento.setProfundidad(0.0);
+        } else if (jcbLosaEntrepiso.isSelected()) {
+            elemento.setTipo(TipoElementoNegocio.LOSA_ENTREPISO);
+            elemento.setLargo(Double.valueOf(campoLargoLosaEntrepiso.getText().trim()));
+            elemento.setAncho(Double.valueOf(campoAnchoLosaEntrepiso.getText().trim()));
+            elemento.setEspesor(Double.valueOf(campoEspesorLosaEntrepiso.getText().trim()));
+            elemento.setAlto(0.0);
+            elemento.setProfundidad(0.0);
+        } else if (jcbVigas.isSelected()) {
+            elemento.setTipo(TipoElementoNegocio.VIGA);
+            elemento.setLargo(Double.valueOf(campoLargoVigas.getText().trim()));
+            elemento.setAncho(Double.valueOf(campoAnchoVigas.getText().trim()));
+            elemento.setEspesor(Double.valueOf(campoEspesorVigas.getText().trim()));
+            elemento.setAlto(0.0);
+            elemento.setProfundidad(0.0);
+        }
+
+        return elemento;
     }
 
     /**
@@ -392,11 +663,27 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCalcularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalcularActionPerformed
-        
+        if (!validarDatos()) {
+            return;
+        }
+
+        try {
+            // Crear el ElementoDTO con los datos ingresados
+            ElementoDTO elemento = crearElementoDTO();
+            coordinadorNegocio.setElementoActual(elemento);
+            
+            this.dispose();
+            coordinador.mostrarCalculoMaterialesConcreto();
+        } catch (Exception ex) {
+            Utilities.mostrarMensajeError("Error al calcular: " + ex.getMessage());
+        }
     }//GEN-LAST:event_btnCalcularActionPerformed
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
-        // TODO add your handling code here:
+        if (Utilities.mostrarConfirmacion("¿Desea volver a la selección de datos? Los datos ingresados se perderán.")) {
+            this.dispose();
+            coordinador.mostrarSeleccionDatos();
+        }
     }//GEN-LAST:event_btnVolverActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

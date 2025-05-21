@@ -4,12 +4,19 @@
  */
 package presentacion;
 
+import negocio_dto.ElementoDTO;
+import negocio_enums.TipoElementoNegocio;
+import utilities.Utilities;
+
 /**
+ * Formulario de la capa de presentación que permite al usuario continuar con el
+ * proceso de cálculo de materiales por elemento constructivo seleccionando el
+ * elemento que desea calcular e ingresando sus dimensiones.
  *
  * @author Alejandra García Preciado - 252444
  */
 public class IngresoDimensionesNivelacionForm extends javax.swing.JFrame {
-    
+
     /**
      * Referencia al coordinador de aplicación. Permite la navegación entre los
      * distintos formularios del sistema.
@@ -29,6 +36,159 @@ public class IngresoDimensionesNivelacionForm extends javax.swing.JFrame {
         initComponents();
         this.coordinador = CoordinadorAplicacion.getInstancia();
         this.coordinadorNegocio = CoordinadorNegocio.getInstancia();
+
+        // Centrar la ventana
+        this.setLocationRelativeTo(null);
+
+        // Agregar listeners para los checkbox para que solo se pueda seleccionar uno
+        agregarListenerCheckboxes();
+
+        // Inicialmente deshabilitar todos los campos de dimensiones
+        deshabilitarTodosCampos();
+    }
+
+    /**
+     * Agrega listeners a los checkbox para que solo sea posible seleccionar uno
+     * a la vez y habilitar los campos correspondientes.
+     */
+    private void agregarListenerCheckboxes() {
+        jcbNivelacionMuros.addActionListener((e) -> {
+            if (jcbNivelacionMuros.isSelected()) {
+
+                // Deshabilitar el otro checkbox
+                jcbNivelacionPisos.setSelected(false);
+
+                // Deshabilitar todos los campos primero
+                deshabilitarTodosCampos();
+
+                // Habilitar solo los campos necesarios para nivelación de muros
+                habilitarCamposNivelacionMuros();
+            } else {
+                // Si se "des selecciona", deshabilitar los campos
+                deshabilitarCamposNivelacionMuros();
+            }
+        });
+
+        jcbNivelacionPisos.addActionListener((e) -> {
+            if (jcbNivelacionPisos.isSelected()) {
+
+                // Deshabilitar el otro checkbox
+                jcbNivelacionMuros.setSelected(false);
+
+                // Deshabilitar todos los campos primero
+                deshabilitarTodosCampos();
+
+                // Habilitar solo los campos necesarios para nivelación de pisos
+                habilitarCamposNivelacionPisos();
+            } else {
+                // Si se "des selecciona", deshabilitar los campos
+                deshabilitarCamposNivelacionPisos();
+            }
+        });
+    }
+
+    // Métodos para habilitar y deshabilitar campos según el elemento seleccionado.
+    private void deshabilitarTodosCampos() {
+        // Nivelación de muros
+        campoAltoNivelacionMuros.setEnabled(false);
+        campoLargoNivelacionMuros.setEnabled(false);
+        campoEspesorNivelacionMuros.setEnabled(false);
+
+        // Nivelación de pisos
+        campoLargoNivelacionPisos.setEnabled(false);
+        campoAnchoNivelacionPisos.setEnabled(false);
+        campoaEspesorNivelacionPisos.setEnabled(false);
+    }
+
+    private void habilitarCamposNivelacionMuros() {
+        campoAltoNivelacionMuros.setEnabled(true);
+        campoLargoNivelacionMuros.setEnabled(true);
+        campoEspesorNivelacionMuros.setEnabled(true);
+    }
+
+    private void deshabilitarCamposNivelacionMuros() {
+        campoAltoNivelacionMuros.setEnabled(false);
+        campoLargoNivelacionMuros.setEnabled(false);
+        campoEspesorNivelacionMuros.setEnabled(false);
+    }
+
+    private void habilitarCamposNivelacionPisos() {
+        campoLargoNivelacionPisos.setEnabled(true);
+        campoAnchoNivelacionPisos.setEnabled(true);
+        campoaEspesorNivelacionPisos.setEnabled(true);
+    }
+
+    private void deshabilitarCamposNivelacionPisos() {
+        campoLargoNivelacionPisos.setEnabled(false);
+        campoAnchoNivelacionPisos.setEnabled(false);
+        campoaEspesorNivelacionPisos.setEnabled(false);
+    }
+
+    /**
+     * Valida que se haya seleccionado un elemento y que se hayan ingresado
+     * todas las dimensiones requeridas.
+     *
+     * @return true si los datos son válidos, false en caso contrario
+     */
+    private boolean validarDatos() {
+        // Validar que se haya seleccionado un elemento
+        if (!jcbNivelacionMuros.isSelected() && !jcbNivelacionPisos.isSelected()) {
+            Utilities.mostrarMensajeError("Debe seleccionar un elemento.");
+            return false;
+        }
+
+        // Validar que se hayan ingresado todas las dimensiones requeridas
+        if (jcbNivelacionMuros.isSelected()) {
+            if (!Utilities.validarCampoNumericoPositivo(campoAltoNivelacionMuros, "Alto (Nivelación Muros)")) {
+                return false;
+            }
+            if (!Utilities.validarCampoNumericoPositivo(campoLargoNivelacionMuros, "Largo (Nivelación Muros)")) {
+                return false;
+            }
+            if (!Utilities.validarCampoNumericoPositivo(campoEspesorNivelacionMuros, "Espesor (Nivelación Muros)")) {
+                return false;
+            }
+        } else if (jcbNivelacionPisos.isSelected()) {
+            if (!Utilities.validarCampoNumericoPositivo(campoLargoNivelacionPisos, "Largo (Nivelación Pisos)")) {
+                return false;
+            }
+            if (!Utilities.validarCampoNumericoPositivo(campoAnchoNivelacionPisos, "Ancho (Nivelación Pisos)")) {
+                return false;
+            }
+            if (!Utilities.validarCampoNumericoPositivo(campoaEspesorNivelacionPisos, "Espesor (Nivelación Pisos)")) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Crea un objeto ElementoDTO a partir de los datos ingresados.
+     *
+     * @return ElementoDTO con los datos del elemento seleccionado
+     */
+    private ElementoDTO crearElementoDTO() {
+        ElementoDTO elemento = new ElementoDTO();
+
+        // Establecer el tipo de elemento y las dimensiones correspondientes
+        if (jcbNivelacionMuros.isSelected()) {
+            elemento.setTipo(TipoElementoNegocio.NIVELACION_MUROS_VERTICAL);
+            elemento.setAlto(Double.valueOf(campoAltoNivelacionMuros.getText().trim()));
+            elemento.setLargo(Double.valueOf(campoLargoNivelacionMuros.getText().trim()));
+            elemento.setEspesor(Double.valueOf(campoEspesorNivelacionMuros.getText().trim()));
+            elemento.setAncho(0.0);
+            elemento.setProfundidad(0.0);
+        } else if (jcbNivelacionPisos.isSelected()) {
+            elemento.setTipo(TipoElementoNegocio.NIVELACION_PISOS_HORIZONTAL);
+            elemento.setLargo(Double.valueOf(campoLargoNivelacionPisos.getText().trim()));
+            elemento.setAncho(Double.valueOf(campoAnchoNivelacionPisos.getText().trim()));
+            elemento.setEspesor(Double.valueOf(campoaEspesorNivelacionPisos.getText().trim()));
+            elemento.setAlto(0.0);
+            elemento.setProfundidad(0.0);
+        }
+
+        return elemento;
     }
 
     /**
@@ -257,11 +417,27 @@ public class IngresoDimensionesNivelacionForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCalcularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalcularActionPerformed
+        if (!validarDatos()) {
+            return;
+        }
 
+        try {
+            // Crear el ElementoDTO con los datos ingresados
+            ElementoDTO elemento = crearElementoDTO();
+            coordinadorNegocio.setElementoActual(elemento);
+            
+            this.dispose();
+            coordinador.mostrarCalculoMaterialesNivelacion();
+        } catch (Exception ex) {
+            Utilities.mostrarMensajeError("Error al calcular: " + ex.getMessage());
+        }
     }//GEN-LAST:event_btnCalcularActionPerformed
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
-        // TODO add your handling code here:
+        if (Utilities.mostrarConfirmacion("¿Desea volver a la selección de datos? Los datos ingresados se perderán.")) {
+            this.dispose();
+            coordinador.mostrarSeleccionDatos();
+        }
     }//GEN-LAST:event_btnVolverActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

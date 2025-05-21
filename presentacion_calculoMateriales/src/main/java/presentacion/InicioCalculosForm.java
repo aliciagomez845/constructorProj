@@ -4,12 +4,30 @@
  */
 package presentacion;
 
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import negocio_dto.CalculoDTO;
+import utilities.Utilities;
+
 /**
+ * Formulario de la capa de presentación que muestra una tabla con el historial
+ * de cálculos y un buscador por dirección, permite al usuario iniciar el
+ * proceso de cálculo de materiales por elemento constructivo.
  *
  * @author Alejandra García Preciado - 252444
  */
 public class InicioCalculosForm extends javax.swing.JFrame {
-    
+
     /**
      * Referencia al coordinador de aplicación. Permite la navegación entre los
      * distintos formularios del sistema.
@@ -23,12 +41,164 @@ public class InicioCalculosForm extends javax.swing.JFrame {
     private CoordinadorNegocio coordinadorNegocio;
 
     /**
+     * Historial de cálculos.
+     */
+    private List<CalculoDTO> listaCalculos;
+
+    /**
      * Creates new form InicioCalculosForm
      */
     public InicioCalculosForm() {
         initComponents();
         this.coordinador = CoordinadorAplicacion.getInstancia();
         this.coordinadorNegocio = CoordinadorNegocio.getInstancia();
+
+        // Centrar la ventana
+        this.setLocationRelativeTo(null);
+
+        // Configurar la tabla con el botón "Consultar"
+        configurarTablaHistorial();
+
+        // Cargar el historial de cálculos
+        cargarHistorialCalculos();
+    }
+
+    /**
+     * Configura la tabla de historial con el botón "Consultar".
+     */
+    private void configurarTablaHistorial() {
+        // Modelo de tabla personalizado
+        DefaultTableModel modelo = new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"Dirección", "Fecha", "Acciones"}
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 2; // Solo la columna de acciones es editable
+            }
+
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                return columnIndex == 2 ? JButton.class : Object.class;
+            }
+        };
+
+        tblHistorial.setModel(modelo);
+
+        // Configurar renderer para botones
+        tblHistorial.getColumnModel().getColumn(2).setCellRenderer(new TableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                JButton button = new JButton("Consultar");
+                button.setBackground(new java.awt.Color(95, 168, 211));
+                button.setForeground(new java.awt.Color(255, 255, 255));
+                button.setFont(new java.awt.Font("Segoe UI", 1, 14));
+                return button;
+            }
+        });
+
+        // Configurar editor para botones
+        tblHistorial.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(tblHistorial));
+
+        // Ajustar ancho de columnas
+        TableColumn column = tblHistorial.getColumnModel().getColumn(2);
+        column.setPreferredWidth(100);
+        column.setMaxWidth(100);
+        column.setMinWidth(100);
+    }
+
+    /**
+     * Carga el historial de cálculos.
+     */
+    private void cargarHistorialCalculos() {
+        try {
+            // Obtener historial de cálculos del coordinador de negocio
+            listaCalculos = coordinadorNegocio.obtenerHistorialCalculos();
+
+            // Limpiar la tabla
+            DefaultTableModel modelo = (DefaultTableModel) tblHistorial.getModel();
+            modelo.setRowCount(0);
+
+            // Agregar los cálculos a la tabla
+            if (listaCalculos != null && !listaCalculos.isEmpty()) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+                for (CalculoDTO calculo : listaCalculos) {
+                    String direccion = calculo.getObra().getDireccion();
+                    String fecha = calculo.getFecha().format(formatter);
+
+                    modelo.addRow(new Object[]{direccion, fecha, "Consultar"});
+                }
+            }
+        } catch (Exception ex) {
+            Utilities.mostrarMensajeError("Error al cargar el historial de cálculos: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Busca cálculos por dirección.
+     */
+    private void buscarPorDireccion() {
+        String direccionBusqueda = campoDireccion.getText().trim().toLowerCase();
+
+        if (direccionBusqueda.isEmpty() || listaCalculos == null) {
+            cargarHistorialCalculos();
+            return;
+        }
+
+        // Filtrar los cálculos por dirección
+        DefaultTableModel modelo = (DefaultTableModel) tblHistorial.getModel();
+        modelo.setRowCount(0);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        for (CalculoDTO calculo : listaCalculos) {
+            String direccion = calculo.getObra().getDireccion().toLowerCase();
+
+            if (direccion.contains(direccionBusqueda)) {
+                String fecha = calculo.getFecha().format(formatter);
+                modelo.addRow(new Object[]{calculo.getObra().getDireccion(), fecha, "Consultar"});
+            }
+        }
+    }
+
+    /**
+     * Abre la pantalla correspondiente para mostrar los detalles del cálculo
+     *
+     * @param indice Índice del cálculo seleccionado
+     */
+    private void consultarCalculo(int indice) {
+        if (indice < 0 || indice >= listaCalculos.size()) {
+            return;
+        }
+
+        CalculoDTO calculo = listaCalculos.get(indice);
+
+        // Determinar qué pantalla abrir según el tipo de elemento
+        switch (calculo.getElemento().getTipo()) {
+            case COLUMNA_CUADRADA:
+            case LOSA_CONTRAPISO:
+            case LOSA_ENTREPISO:
+            case VIGA:
+                // Abrir pantalla de concreto
+                this.dispose();
+                coordinador.mostrarCalculoMaterialesConcreto();
+                break;
+
+            case NIVELACION_MUROS_VERTICAL:
+            case NIVELACION_PISOS_HORIZONTAL:
+                // Abrir pantalla de nivelación
+                this.dispose();
+                coordinador.mostrarCalculoMaterialesNivelacion();
+                break;
+
+            case MURO_LADRILLO:
+                // Abrir pantalla de mampostería
+                this.dispose();
+                coordinador.mostrarCalculoMaterialesMamposteria();
+                break;
+        }
     }
 
     /**
@@ -73,6 +243,11 @@ public class InicioCalculosForm extends javax.swing.JFrame {
         campoDireccion.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         campoDireccion.setForeground(new java.awt.Color(0, 0, 0));
         campoDireccion.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(6, 108, 169), 3));
+        campoDireccion.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                campoDireccionKeyReleased(evt);
+            }
+        });
 
         tblHistorial.setBackground(new java.awt.Color(255, 255, 255));
         tblHistorial.setForeground(new java.awt.Color(0, 0, 0));
@@ -150,8 +325,73 @@ public class InicioCalculosForm extends javax.swing.JFrame {
     }//GEN-LAST:event_btnNuevoCalculoActionPerformed
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
-
+        if (Utilities.mostrarConfirmacion("¿Desea salir de la aplicación?")) {
+            this.dispose();
+            System.exit(0);
+        }
     }//GEN-LAST:event_btnVolverActionPerformed
+
+    private void campoDireccionKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_campoDireccionKeyReleased
+        buscarPorDireccion();
+    }//GEN-LAST:event_campoDireccionKeyReleased
+
+    /**
+     * Editor personalizado para la columna de botones en la tabla de historial.
+     */
+    class ButtonEditor extends DefaultCellEditor {
+
+        protected JButton button;
+        private String label;
+        private boolean isPushed;
+        private int fila;
+        private JTable tabla;
+        private InicioCalculosForm parent;
+
+        public ButtonEditor(JTable tabla) {
+            super(new JCheckBox());
+            this.tabla = tabla;
+            this.parent = (InicioCalculosForm) tabla.getTopLevelAncestor();
+
+            button = new JButton();
+            button.setOpaque(true);
+            button.setBackground(new java.awt.Color(95, 168, 211));
+            button.setForeground(new java.awt.Color(255, 255, 255));
+            button.setFont(new java.awt.Font("Segoe UI", 1, 14));
+
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    fireEditingStopped();
+                }
+            });
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                boolean isSelected, int row, int column) {
+            label = (value == null) ? "Consultar" : value.toString();
+            button.setText(label);
+            fila = row;
+            isPushed = true;
+            return button;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            if (isPushed) {
+                // Cuando se hace clic en el botón, se llama al método consultarCalculo
+                parent.consultarCalculo(fila);
+            }
+            isPushed = false;
+            return label;
+        }
+
+        @Override
+        public boolean stopCellEditing() {
+            isPushed = false;
+            return super.stopCellEditing();
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnNuevoCalculo;

@@ -43,6 +43,11 @@ public class CoordinadorNegocio {
      * Subsistema para la gestión de la obra seleccionada.
      */
     private final IAdmObraSeleccionada admObraSeleccionada;
+    
+    /**
+     * Variable para almacenar el elemento actual.
+     */
+    private ElementoDTO elementoActual;
 
     /**
      * Constructor privado que inicializa los subsistemas.
@@ -256,4 +261,23 @@ public class CoordinadorNegocio {
             throw new PresentacionException("Error al generar reporte: " + ex.getMessage(), ex);
         }
     }
+    
+    /**
+     * Establece el elemento actual para realizar cálculos
+     *
+     * @param elemento Elemento a establecer
+     */
+    public void setElementoActual(ElementoDTO elemento) {
+        this.elementoActual = elemento;
+    }
+
+    /**
+     * Obtiene el elemento actual para realizar cálculos
+     *
+     * @return Elemento actual
+     */
+    public ElementoDTO getElementoActual() {
+        return this.elementoActual;
+    }
+    
 }

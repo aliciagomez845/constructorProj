@@ -4,12 +4,19 @@
  */
 package presentacion;
 
+import negocio_dto.ElementoDTO;
+import negocio_enums.TipoElementoNegocio;
+import utilities.Utilities;
+
 /**
+ * Formulario de la capa de presentación que permite al usuario continuar con el
+ * proceso de cálculo de materiales por elemento constructivo seleccionando el
+ * elemento que desea calcular e ingresando sus dimensiones.
  *
  * @author Alejandra García Preciado - 252444
  */
 public class IngresoDimensionesMamposteriaForm extends javax.swing.JFrame {
-    
+
     /**
      * Referencia al coordinador de aplicación. Permite la navegación entre los
      * distintos formularios del sistema.
@@ -29,6 +36,48 @@ public class IngresoDimensionesMamposteriaForm extends javax.swing.JFrame {
         initComponents();
         this.coordinador = CoordinadorAplicacion.getInstancia();
         this.coordinadorNegocio = CoordinadorNegocio.getInstancia();
+
+        // Centrar la ventana
+        this.setLocationRelativeTo(null);
+    }
+
+    /**
+     * Valida que se hayan ingresado todas las dimensiones requeridas.
+     *
+     * @return true si los datos son válidos, false en caso contrario
+     */
+    private boolean validarDatos() {
+        // Validar que se hayan ingresado todas las dimensiones requeridas
+        if (!Utilities.validarCampoNumericoPositivo(campoAltoMuro, "Alto (Muro)")) {
+            return false;
+        }
+        if (!Utilities.validarCampoNumericoPositivo(campoLargoMuro, "Largo (Muro)")) {
+            return false;
+        }
+        if (!Utilities.validarCampoNumericoPositivo(campoEspesorMuro, "Espesor (Muro)")) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Crea un objeto ElementoDTO a partir de los datos ingresados.
+     *
+     * @return ElementoDTO con los datos del elemento seleccionado
+     */
+    private ElementoDTO crearElementoDTO() {
+        ElementoDTO elemento = new ElementoDTO();
+
+        // Establecer el tipo de elemento y las dimensiones correspondientes
+        elemento.setTipo(TipoElementoNegocio.MURO_LADRILLO);
+        elemento.setAlto(Double.valueOf(campoAltoMuro.getText().trim()));
+        elemento.setLargo(Double.valueOf(campoLargoMuro.getText().trim()));
+        elemento.setEspesor(Double.valueOf(campoEspesorMuro.getText().trim()));
+        elemento.setAncho(0.0);
+        elemento.setProfundidad(0.0);
+
+        return elemento;
     }
 
     /**
@@ -182,11 +231,27 @@ public class IngresoDimensionesMamposteriaForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
-
+        if (Utilities.mostrarConfirmacion("¿Desea volver a la selección de datos? Los datos ingresados se perderán.")) {
+            this.dispose();
+            coordinador.mostrarSeleccionDatos();
+        }
     }//GEN-LAST:event_btnVolverActionPerformed
 
     private void btnCalcular1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalcular1ActionPerformed
-        // TODO add your handling code here:
+        if (!validarDatos()) {
+            return;
+        }
+
+        try {
+            // Crear el ElementoDTO con los datos ingresados
+            ElementoDTO elemento = crearElementoDTO();
+            coordinadorNegocio.setElementoActual(elemento);
+            
+            this.dispose();
+            coordinador.mostrarCalculoMaterialesMamposteria();
+        } catch (Exception ex) {
+            Utilities.mostrarMensajeError("Error al calcular: " + ex.getMessage());
+        }
     }//GEN-LAST:event_btnCalcular1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

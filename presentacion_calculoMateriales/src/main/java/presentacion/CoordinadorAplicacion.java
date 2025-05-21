@@ -4,6 +4,8 @@
  */
 package presentacion;
 
+import negocio_dto.ElementoDTO;
+
 /**
  *
  * @author Alejandra García Preciado - 252444
@@ -84,6 +86,35 @@ public class CoordinadorAplicacion {
             calculoMaterialesMamposteriaForm = new CalculoMaterialesMamposteriaForm();
         }
         calculoMaterialesMamposteriaForm.setVisible(true);
+    }
+    
+    /**
+     * Realiza un cálculo de materiales para el elemento actual.
+     *
+     * @param elemento Elemento para el que se calculará
+     */
+    public void calcularMateriales(ElementoDTO elemento) {
+        // Almacenar el elemento en el CoordinadorNegocio
+        CoordinadorNegocio.getInstancia().setElementoActual(elemento);
+
+        // Abrir la pantalla correspondiente según el tipo de elemento
+        switch (elemento.getTipo()) {
+            case COLUMNA_CUADRADA:
+            case LOSA_CONTRAPISO:
+            case LOSA_ENTREPISO:
+            case VIGA:
+                mostrarCalculoMaterialesConcreto();
+                break;
+
+            case NIVELACION_MUROS_VERTICAL:
+            case NIVELACION_PISOS_HORIZONTAL:
+                mostrarCalculoMaterialesNivelacion();
+                break;
+
+            case MURO_LADRILLO:
+                mostrarCalculoMaterialesMamposteria();
+                break;
+        }
     }
     
     public void reset() {
