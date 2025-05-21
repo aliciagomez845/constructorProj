@@ -8,6 +8,18 @@
     </parent>
     <artifactId>negocios_admCalculoMateriales</artifactId>
     <packaging>jar</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>negocios_admObraSeleccionada</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bo_individuales</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <exec.mainClass>com.mycompany.negocios_admcalculomateriales.Negocios_admCalculoMateriales</exec.mainClass>

@@ -5,8 +5,13 @@
 package negocio_enums;
 
 /**
+ * Enumeración que representa los diferentes tipos de elementos constructivos
+ * que pueden ser calculados en el sistema, para la capa de negocio.
  *
- * @author alega
+ * Cada valor corresponde a un tipo específico de elemento de construcción para
+ * el cual se pueden calcular los materiales requeridos.
+ * 
+ * @author Alejandra García Preciado - 252444
  */
 public enum TipoElementoNegocio {
     
