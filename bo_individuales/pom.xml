@@ -8,6 +8,18 @@
     </parent>
     <artifactId>bo_individuales</artifactId>
     <packaging>jar</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>dto_individuales</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>datos_individual</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <exec.mainClass>com.mycompany.bo_individuales.Bo_individuales</exec.mainClass>

@@ -5,10 +5,12 @@
 package dao;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 import conexion.ConexionMongo;
 import dominio_entidades.Obra;
 import excepciones.PersistenciaException;
 import interfaces.IObraDAO;
+import org.bson.types.ObjectId;
 
 /**
  * Clase ObraDAO.
@@ -42,7 +44,13 @@ public class ObraDAO implements IObraDAO {
      */
     @Override
     public Obra buscarPorId(String id) throws PersistenciaException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            return coleccion.find(Filters.eq("_id", new ObjectId(id))).first();
+        } catch (IllegalArgumentException ex) {
+            throw new PersistenciaException("ID de obra inválido: " + id, ex);
+        } catch (Exception ex) {
+            throw new PersistenciaException("Error al buscar obra por ID: " + id, ex);
+        }
     }
 
     /**
@@ -54,7 +62,11 @@ public class ObraDAO implements IObraDAO {
      */
     @Override
     public Obra buscarPorDireccion(String direccion) throws PersistenciaException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            return coleccion.find(Filters.eq("direccion", direccion)).first();
+        } catch (Exception ex) {
+            throw new PersistenciaException("Error al buscar obra por dirección: " + direccion, ex);
+        }
     }
     
 }

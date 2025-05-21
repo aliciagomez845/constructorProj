@@ -4,50 +4,50 @@
  */
 package bo;
 
-import dao.ElementoDAO;
-import interfaces.IElementoDAO;
+import dao.MaterialCalculoDAO;
+import interfaces.IMaterialCalculoDAO;
 
 /**
- * Clase ElementoBO
+ * Clase MaterialCalculoBO
  *
  * Objeto de negocio (Business Object) que gestiona la lógica relacionada con
- * los elementos en el sistema. Esta clase implementa el patrón
- * Singleton para garantizar una única instancia en toda la aplicación.
+ * los materiales calculados en los cálculos del sistema. Esta clase implementa el patrón Singleton para
+ * garantizar una única instancia en toda la aplicación.
  * 
  * @author Alejandra García Preciado - 252444
  */
-public class ElementoBO {
+public class MaterialCalculoBO {
     
     /**
      * Instancia única de la clase (patrón Singleton). Garantiza que solo exista
      * una instancia en toda la aplicación.
      */
-    public static ElementoBO instance;
+    public static MaterialCalculoBO instance;
 
     /**
-     * DAO para elementos. Gestiona el acceso a los datos de elementos en la
+     * DAO para materiales calculados. Gestiona el acceso a los datos de los materiales calculados en la
      * persistencia.
      */
-    private IElementoDAO elementoDAO;
+    private IMaterialCalculoDAO materialCalculoDAO;
 
     /**
      * Constructor privado (patrón Singleton). Previene la creación de múltiples
      * instancias desde fuera de la clase.
      */
-    private ElementoBO() {
-        this.elementoDAO = new ElementoDAO();
+    private MaterialCalculoBO() {
+        this.materialCalculoDAO = new MaterialCalculoDAO();
     }
 
     /**
-     * Método para obtener la instancia única de ElementoBO (patrón Singleton).
+     * Método para obtener la instancia única de MaterialCalculoBO (patrón Singleton).
      * Si no existe una instancia, la crea; de lo contrario, devuelve la
      * existente.
      *
-     * @return La instancia única de ElementoBO
+     * @return La instancia única de MaterialCalculoBO
      */
-    public static ElementoBO getInstance() {
+    public static MaterialCalculoBO getInstance() {
         if (instance == null) {
-            instance = new ElementoBO();
+            instance = new MaterialCalculoBO();
         }
         return instance;
     }

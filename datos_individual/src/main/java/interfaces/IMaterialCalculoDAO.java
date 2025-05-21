@@ -18,7 +18,7 @@ import java.util.List;
  * 
  * @author Alejandra García Preciado - 252444
  */
-public interface IMaterialCalculo {
+public interface IMaterialCalculoDAO {
     
     /**
      * Busca materiales por su tipo.

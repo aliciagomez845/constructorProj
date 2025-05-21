@@ -5,11 +5,15 @@
 package dao;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 import conexion.ConexionMongo;
 import dominio_entidades.Calculo;
 import excepciones.PersistenciaException;
 import interfaces.ICalculoDAO;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import org.bson.types.ObjectId;
 
 /**
  * Clase CalculoDAO.
@@ -43,7 +47,18 @@ public class CalculoDAO implements ICalculoDAO {
      */
     @Override
     public Calculo guardarCalculo(Calculo calculo) throws PersistenciaException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            if (calculo.getIdCalculo() == null) {
+                calculo.setFecha(new Date()); // Establecer fecha actual 
+                coleccion.insertOne(calculo);
+            } else {
+                // Usar findOneAndReplace para asegurar que el documento existe antes de reemplazarlo
+                coleccion.findOneAndReplace(Filters.eq("_id", calculo.getIdCalculo()), calculo);
+            }
+            return calculo;
+        } catch (Exception e) {
+            throw new PersistenciaException("Error al guardar cálculo", e);
+        }
     }
 
     /**
@@ -55,7 +70,13 @@ public class CalculoDAO implements ICalculoDAO {
      */
     @Override
     public Calculo buscarPorId(String id) throws PersistenciaException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            return coleccion.find(Filters.eq("_id", new ObjectId(id))).first();
+        } catch (IllegalArgumentException ex) {
+            throw new PersistenciaException("ID de cálculo inválido: " + id, ex);
+        } catch (Exception ex) {
+            throw new PersistenciaException("Error al buscar cálculo por ID: " + id, ex);
+        }
     }
 
     /**
@@ -67,7 +88,14 @@ public class CalculoDAO implements ICalculoDAO {
      */
     @Override
     public List<Calculo> buscarPorObra(String idObra) throws PersistenciaException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            return coleccion.find(Filters.eq("idObra", new ObjectId(idObra)))
+                    .into(new ArrayList<>());
+        } catch (IllegalArgumentException ex) {
+            throw new PersistenciaException("ID de obra inválido: " + idObra, ex);
+        } catch (Exception ex) {
+            throw new PersistenciaException("Error al buscar cálculos por obra: " + idObra, ex);
+        }
     }
     
 }

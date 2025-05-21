@@ -10,13 +10,13 @@ package negocio_dto;
  */
 public class ObraDTO {
     
-    private Long id;
+    private String id;
     private String direccion;
 
     public ObraDTO() {
     }
 
-    public ObraDTO(Long id, String direccion) {
+    public ObraDTO(String id, String direccion) {
         this.id = id;
         this.direccion = direccion;
     }    
@@ -25,11 +25,11 @@ public class ObraDTO {
         this.direccion = direccion;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
