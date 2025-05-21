@@ -106,14 +106,14 @@ public class ElementoBO {
         // Validar dimensiones específicas según el tipo de elemento
         switch (elemento.getTipo()) {
             case COLUMNA_CUADRADA:
-                return elemento.getAlto() != null && elemento.getAncho() != null;
+                return elemento.getAlto() != null && elemento.getAncho() != null && elemento.getEspesor() != null;
 
             case LOSA_CONTRAPISO:
             case LOSA_ENTREPISO:
                 return elemento.getLargo() != null && elemento.getAncho() != null && elemento.getEspesor() != null;
 
             case VIGA:
-                return elemento.getLargo() != null && elemento.getAncho() != null && elemento.getAlto() != null;
+                return elemento.getLargo() != null && elemento.getAncho() != null && elemento.getEspesor() != null;
 
             case MURO_LADRILLO:
                 return elemento.getLargo() != null && elemento.getAlto() != null && elemento.getEspesor() != null;

@@ -13,10 +13,21 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>negocios_admObraSeleccionada</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.mycompany</groupId>
+                    <artifactId>bo_negocios</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bo_calculoMateriales</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>dto_calculoMateriales</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

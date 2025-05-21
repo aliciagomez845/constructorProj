@@ -5,9 +5,34 @@
 package excepciones;
 
 /**
+ * Clase para el manejo de Excepciones en la capa de Presentación.
  *
- * @author alega
+ * Esta clase extiende de Exception y se utiliza para encapsular y propagar
+ * errores específicos que pueden ocurrir durante las operaciones en la capa de
+ * presentación, como errores de validación de datos de entrada, problemas de
+ * interacción con el usuario, etc.
+ *
+ * @author Alejandra García Preciado - 252444
  */
-public class PresentacionException {
-    
+public class PresentacionException extends Exception {
+
+    /**
+     * Constructor que recibe únicamente un mensaje.
+     *
+     * @param mensaje Mensaje que describe la raíz de la excepción.
+     */
+    public PresentacionException(String mensaje) {
+        super(mensaje);
+    }
+
+    /**
+     * Constructor que recibe el mensaje y la causa de la excepción, como un
+     * objeto Throwable.
+     *
+     * @param mensaje Mensaje que describe la raíz de la excepción.
+     * @param causa Objeto Throwable de la causa de la excepción.
+     */
+    public PresentacionException(String mensaje, Throwable causa) {
+        super(mensaje, causa);
+    }
 }

@@ -13,4 +13,21 @@
         <exec.mainClass>com.mycompany.presentacion_individual.Presentacion_individual</exec.mainClass>
     </properties>
     <name>presentacion_calculoMateriales</name>
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>negocios_admCalculoMateriales</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>negocios_admObraSeleccionada</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>dto_calculoMateriales</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

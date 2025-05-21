@@ -6,15 +6,29 @@ package presentacion;
 
 /**
  *
- * @author alega
+ * @author Alejandra García Preciado - 252444
  */
 public class SeleccionDatosForm extends javax.swing.JFrame {
+    
+    /**
+     * Referencia al coordinador de aplicación. Permite la navegación entre los
+     * distintos formularios del sistema.
+     */
+    private CoordinadorAplicacion coordinador;
+
+    /**
+     * Referencia al coordinador de negocio. Proporciona acceso a la lógica de
+     * negocio para la gestión de cálculo de materiales.
+     */
+    private CoordinadorNegocio coordinadorNegocio;
 
     /**
      * Creates new form SeleccionDatosForm
      */
     public SeleccionDatosForm() {
         initComponents();
+        this.coordinador = CoordinadorAplicacion.getInstancia();
+        this.coordinadorNegocio = CoordinadorNegocio.getInstancia();
     }
 
     /**
@@ -26,57 +40,128 @@ public class SeleccionDatosForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        nombreEmpresa = new javax.swing.JLabel();
+        lblDatosProyecto = new javax.swing.JLabel();
+        lblDireccion = new javax.swing.JLabel();
+        campoDireccion = new javax.swing.JTextField();
+        lblActividad = new javax.swing.JLabel();
+        jcbConcreto = new javax.swing.JCheckBox();
+        btnContinuar = new javax.swing.JButton();
+        jcbMorterosNivelacion = new javax.swing.JCheckBox();
+        jcbMorterosMamposteria = new javax.swing.JCheckBox();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(255, 255, 255));
+
+        nombreEmpresa.setFont(new java.awt.Font("Segoe UI", 0, 32)); // NOI18N
+        nombreEmpresa.setForeground(new java.awt.Color(0, 0, 0));
+        nombreEmpresa.setText("BuildControl");
+
+        lblDatosProyecto.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblDatosProyecto.setForeground(new java.awt.Color(0, 0, 0));
+        lblDatosProyecto.setText("Ingresa los datos del proyecto:");
+
+        lblDireccion.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblDireccion.setForeground(new java.awt.Color(0, 0, 0));
+        lblDireccion.setText("Dirección de la Obra:");
+
+        campoDireccion.setBackground(new java.awt.Color(255, 255, 255));
+        campoDireccion.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        campoDireccion.setForeground(new java.awt.Color(0, 0, 0));
+
+        lblActividad.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblActividad.setForeground(new java.awt.Color(0, 0, 0));
+        lblActividad.setText("Elige la actividad que necesitas (una a la vez):");
+
+        jcbConcreto.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jcbConcreto.setForeground(new java.awt.Color(0, 0, 0));
+        jcbConcreto.setText("Concreto");
+
+        btnContinuar.setBackground(new java.awt.Color(95, 168, 211));
+        btnContinuar.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnContinuar.setForeground(new java.awt.Color(255, 255, 255));
+        btnContinuar.setText("Continuar");
+        btnContinuar.setBorderPainted(false);
+        btnContinuar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnContinuarActionPerformed(evt);
+            }
+        });
+
+        jcbMorterosNivelacion.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jcbMorterosNivelacion.setForeground(new java.awt.Color(0, 0, 0));
+        jcbMorterosNivelacion.setText("Morteros de Nivelación");
+
+        jcbMorterosMamposteria.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jcbMorterosMamposteria.setForeground(new java.awt.Color(0, 0, 0));
+        jcbMorterosMamposteria.setText("Morteros Pega Mampostería");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(48, 48, 48)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(campoDireccion, javax.swing.GroupLayout.PREFERRED_SIZE, 426, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblDatosProyecto, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(nombreEmpresa, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblDireccion, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblActividad, javax.swing.GroupLayout.PREFERRED_SIZE, 391, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(48, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jcbConcreto, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jcbMorterosNivelacion, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jcbMorterosMamposteria, javax.swing.GroupLayout.PREFERRED_SIZE, 339, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(btnContinuar)
+                        .addGap(56, 56, 56))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(33, 33, 33)
+                .addComponent(nombreEmpresa)
+                .addGap(18, 18, 18)
+                .addComponent(lblDatosProyecto)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblDireccion)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(campoDireccion, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(38, 38, 38)
+                .addComponent(lblActividad)
+                .addGap(48, 48, 48)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jcbConcreto)
+                    .addComponent(jcbMorterosNivelacion)
+                    .addComponent(jcbMorterosMamposteria))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 57, Short.MAX_VALUE)
+                .addComponent(btnContinuar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(42, 42, 42))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(SeleccionDatosForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(SeleccionDatosForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(SeleccionDatosForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(SeleccionDatosForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new SeleccionDatosForm().setVisible(true);
-            }
-        });
-    }
+    private void btnContinuarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnContinuarActionPerformed
+        
+    }//GEN-LAST:event_btnContinuarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnContinuar;
+    private javax.swing.JTextField campoDireccion;
+    private javax.swing.JCheckBox jcbConcreto;
+    private javax.swing.JCheckBox jcbMorterosMamposteria;
+    private javax.swing.JCheckBox jcbMorterosNivelacion;
+    private javax.swing.JLabel lblActividad;
+    private javax.swing.JLabel lblDatosProyecto;
+    private javax.swing.JLabel lblDireccion;
+    private javax.swing.JLabel nombreEmpresa;
     // End of variables declaration//GEN-END:variables
 }

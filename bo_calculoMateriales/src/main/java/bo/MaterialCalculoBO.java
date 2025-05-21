@@ -144,7 +144,7 @@ public class MaterialCalculoBO {
 
         switch (elemento.getTipo()) {
             case COLUMNA_CUADRADA:
-                volumen = elemento.getAlto() * elemento.getAncho() * elemento.getAncho();
+                volumen = elemento.getAlto() * elemento.getAncho() * elemento.getEspesor();
                 break;
 
             case LOSA_CONTRAPISO:
@@ -153,7 +153,7 @@ public class MaterialCalculoBO {
                 break;
 
             case VIGA:
-                volumen = elemento.getLargo() * elemento.getAncho() * elemento.getAlto();
+                volumen = elemento.getLargo() * elemento.getAncho() * elemento.getEspesor(); 
                 break;
 
             case MURO_LADRILLO:
@@ -161,6 +161,8 @@ public class MaterialCalculoBO {
                 break;
 
             case NIVELACION_MUROS_VERTICAL:
+                volumen = elemento.getAlto() * elemento.getLargo() * elemento.getEspesor();
+                break;
             case NIVELACION_PISOS_HORIZONTAL:
                 volumen = elemento.getLargo() * elemento.getAncho() * elemento.getEspesor();
                 break;
