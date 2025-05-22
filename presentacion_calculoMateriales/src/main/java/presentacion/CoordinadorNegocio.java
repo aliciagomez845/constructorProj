@@ -265,6 +265,20 @@ public class CoordinadorNegocio {
     }
     
     /**
+     * Valida que la dirección ingresada coincida con la obra en sesión.
+     *
+     * @param direccionIngresada Dirección ingresada por el usuario
+     * @throws PresentacionException Si la dirección no coincide o hay error
+     */
+    public void validarDireccionObra(String direccionIngresada) throws PresentacionException {
+        try {
+            admCalculoMateriales.validarDireccionObra(direccionIngresada);
+        } catch (AdmCalculoMaterialesException ex) {
+            throw new PresentacionException("Error al validar dirección: " + ex.getMessage(), ex);
+        }
+    }
+    
+    /**
      * Establece el elemento actual para realizar cálculos
      *
      * @param elemento Elemento a establecer

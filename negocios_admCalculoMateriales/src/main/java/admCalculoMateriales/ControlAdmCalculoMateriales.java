@@ -65,6 +65,36 @@ public class ControlAdmCalculoMateriales {
         this.elementoBO = ElementoBO.getInstance();
         this.materialCalculoBO = MaterialCalculoBO.getInstance();
     }
+    
+    /**
+     * Valida que la dirección ingresada coincida con la obra en sesión.
+     *
+     * @param direccionIngresada Dirección ingresada por el usuario
+     * @throws AdmCalculoMaterialesException Si la dirección no coincide o hay
+     * error
+     */
+    public void validarDireccionObra(String direccionIngresada) throws AdmCalculoMaterialesException {
+        try {
+            // Obtener la obra actual en sesión
+            ObraDTO obraActual = obtenerObraActual();
+            if (obraActual == null) {
+                throw new AdmCalculoMaterialesException("No hay una obra seleccionada actualmente");
+            }
+
+            // Validar que la dirección coincida (ignorando mayúsculas/minúsculas y espacios)
+            String direccionObra = obraActual.getDireccion().trim().toLowerCase();
+            String direccionInput = direccionIngresada.trim().toLowerCase();
+
+            if (!direccionObra.equals(direccionInput)) {
+                throw new AdmCalculoMaterialesException(
+                        "La dirección ingresada '" + direccionIngresada
+                        + "' no coincide con la dirección de la obra en sesión '" + obraActual.getDireccion() + "'"
+                );
+            }
+        } catch (AdmCalculoMaterialesException ex) {
+            throw new AdmCalculoMaterialesException("Error al validar dirección de obra: " + ex.getMessage(), ex);
+        }
+    }
 
     /**
      * Calcula los materiales necesarios para un elemento constructivo
@@ -108,7 +138,7 @@ public class ControlAdmCalculoMateriales {
         try {
             // Validar que el cálculo tenga una obra asociada
             if (calculo.getObra() == null) {
-                // Intentar asignar la obra actual
+                // Asignar la obra actual de la sesión
                 ObraDTO obraActual = obtenerObraActual();
                 if (obraActual == null) {
                     throw new AdmCalculoMaterialesException("No hay una obra seleccionada para asociar al cálculo");
@@ -144,7 +174,7 @@ public class ControlAdmCalculoMateriales {
                 throw new AdmCalculoMaterialesException("No se encontró el cálculo con ID: " + idCalculo);
             }
 
-            // Generar el PDF (esto es un ejemplo, la implementación real dependerá de la librería PDF usada)
+            // Generar el PDF 
             return generarPDF(calculo);
         } catch (NegocioException ex) {
             throw new AdmCalculoMaterialesException("Error al generar el PDF del cálculo: " + ex.getMessage(), ex);
@@ -249,13 +279,26 @@ public class ControlAdmCalculoMateriales {
      * @return Arreglo de bytes que representa el PDF generado
      */
     private byte[] generarPDF(CalculoDTO calculo) {
-        // Esta es una implementación simulada. En una implementación real
-        // se utilizaría una librería como iText, PDFBox, etc.
+        // Esta es una implementación simulada.
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        // Aquí iría la lógica para generar el PDF
-        // Por ahora, solo devolvemos un array de bytes vacío como ejemplo
-        return outputStream.toByteArray();
+        try {
+            // Aquí iría la lógica para generar el PDF
+            // Por ejemplo usando iText:
+            // Document document = new Document();
+            // PdfWriter.getInstance(document, outputStream);
+            // document.open();
+            // document.add(new Paragraph("Reporte de Cálculo de Materiales"));
+            // ... agregar contenido del cálculo ...
+            // document.close();
+
+            // Por ahora, devolvemos un array de bytes simulado
+            String contenidoPDF = "Reporte de Cálculo - Obra: " + calculo.getObra().getDireccion()
+                    + " - Elemento: " + calculo.getElemento().getTipo();
+            return contenidoPDF.getBytes();
+        } catch (Exception e) {
+            return new byte[0];
+        }
     }
 
     /**

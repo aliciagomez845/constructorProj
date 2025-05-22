@@ -172,5 +172,17 @@ public class FAdmCalculoMateriales implements IAdmCalculoMateriales {
     public boolean validarDimensionesElemento(ElementoDTO elemento) throws AdmCalculoMaterialesException {
         return controlAdmCalculoMateriales.validarDimensionesElemento(elemento);
     }
+    
+    /**
+     * Valida que la dirección ingresada coincida con la obra en sesión.
+     *
+     * @param direccionIngresada Dirección ingresada por el usuario
+     * @throws AdmCalculoMaterialesException Si la dirección no coincide o hay
+     * error
+     */
+    @Override
+    public void validarDireccionObra(String direccionIngresada) throws AdmCalculoMaterialesException {
+        controlAdmCalculoMateriales.validarDireccionObra(direccionIngresada);
+    }
 
 }

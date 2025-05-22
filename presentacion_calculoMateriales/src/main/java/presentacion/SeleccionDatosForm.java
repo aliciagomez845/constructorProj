@@ -4,6 +4,7 @@
  */
 package presentacion;
 
+import excepciones.PresentacionException;
 import utilities.Utilities;
 
 /**
@@ -229,9 +230,12 @@ public class SeleccionDatosForm extends javax.swing.JFrame {
         }
 
         try {
-            // Guardar la dirección de la obra en algún lugar para su uso posterior
-            String direccionObra = campoDireccion.getText().trim();
+            // Obtener la dirección ingresada por el usuario
+            String direccionIngresada = campoDireccion.getText().trim();
 
+            // Verificar que la dirección coincida con la obra en sesión
+            coordinadorNegocio.validarDireccionObra(direccionIngresada);
+            
             // Determinar qué actividad fue seleccionada y dirigir al usuario a la pantalla correspondiente
             if (jcbConcreto.isSelected()) {
                 this.dispose();
@@ -243,8 +247,12 @@ public class SeleccionDatosForm extends javax.swing.JFrame {
                 this.dispose();
                 coordinador.mostrarIngresoDimensionesMamposteria();
             }
+        } catch (PresentacionException ex) {
+            Utilities.mostrarMensajeError("Error de validación: " + ex.getMessage());
+            // Mantener al usuario en la pantalla actual para que corrija la dirección
+            campoDireccion.requestFocus();
         } catch (Exception ex) {
-            Utilities.mostrarMensajeError("Error al continuar: " + ex.getMessage());
+            Utilities.mostrarMensajeError("Error inesperado: " + ex.getMessage());
         }
     }//GEN-LAST:event_btnContinuarActionPerformed
 

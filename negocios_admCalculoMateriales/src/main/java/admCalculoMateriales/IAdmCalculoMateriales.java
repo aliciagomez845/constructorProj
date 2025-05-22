@@ -124,5 +124,14 @@ public interface IAdmCalculoMateriales {
      * generación
      */
     CalculoDTO generarReporteCalculo(ElementoDTO elemento) throws AdmCalculoMaterialesException;
+    
+    /**
+     * Valida que la dirección ingresada coincida con la obra en sesión.
+     *
+     * @param direccionIngresada Dirección ingresada por el usuario
+     * @throws AdmCalculoMaterialesException Si la dirección no coincide o hay
+     * error
+     */
+    void validarDireccionObra(String direccionIngresada) throws AdmCalculoMaterialesException;
 
 }

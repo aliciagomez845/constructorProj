@@ -53,11 +53,12 @@ public class CalculoMapper {
         // Convertir la lista de materiales calculados
         List<MaterialCalculoDTO> materialesDTO = MaterialCalculoMapper.toDTOList(calculo.getMaterialesCalculados());
 
-        // Crear una ObraDTO con el ID de la obra
+        // CORRECCIÓN: Crear una ObraDTO completa con el ID de la obra
         ObraDTO obraDTO = null;
         if (calculo.getObra() != null) {
             obraDTO = new ObraDTO();
             obraDTO.setId(calculo.getObra().toHexString());
+            // Aquí solo es el ID y la dirección, los otros datos se obtendrían del subsistema de obra seleccionada cuando sea necesario
         }
 
         // Calcular el volumen
