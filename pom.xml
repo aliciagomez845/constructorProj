@@ -11,6 +11,7 @@
         <module>bo_calculoMateriales</module>
         <module>datos_calculoMateriales</module>
         <module>presentacion_calculoMateriales</module>
+        <module>com.mycompany_negocios_admObraSeleccionada_jar_1.0-SNAPSHOT_1</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

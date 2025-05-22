@@ -29,7 +29,7 @@ public class ConexionMongo {
     private static MongoClient mongoClient = null;
 
     // Si se conectan por Atlas, esta es la URL que les proporciona la página
-    private static final String URL = "mongodb+srv://root:itson@cluster0.q62wcvh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+    private static final String URL = "mongodb+srv://root:itson@cluster0.q62wcvh.mongodb.net/";
 
     // Nombre de la base de datos que se utilizará en el proyecto
     private static final String DATABASE_NAME = "buildControl";

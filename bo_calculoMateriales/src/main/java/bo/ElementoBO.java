@@ -95,8 +95,16 @@ public class ElementoBO {
      */
     public boolean validarDimensiones(ElementoDTO elemento) {
         if (elemento == null) {
+            System.out.println("Elemento es nulo");
             return false;
         }
+        
+        System.out.println("Tipo: " + elemento.getTipo());
+        System.out.println("Alto: " + elemento.getAlto());
+        System.out.println("Ancho: " + elemento.getAncho());
+        System.out.println("Largo: " + elemento.getLargo());
+        System.out.println("Espesor: " + elemento.getEspesor());
+        System.out.println("Profundidad: " + elemento.getProfundidad());
 
         // Validar que todas las dimensiones sean positivas
         if (!validarDimensionesPositivas(elemento)) {
@@ -106,23 +114,34 @@ public class ElementoBO {
         // Validar dimensiones específicas según el tipo de elemento
         switch (elemento.getTipo()) {
             case COLUMNA_CUADRADA:
-                return elemento.getAlto() != null && elemento.getAncho() != null && elemento.getEspesor() != null;
+                return elemento.getAlto() != null && elemento.getAncho() != null
+                        && elemento.getAlto() > 0 && elemento.getAncho() > 0;
 
             case LOSA_CONTRAPISO:
             case LOSA_ENTREPISO:
-                return elemento.getLargo() != null && elemento.getAncho() != null && elemento.getEspesor() != null;
+                return elemento.getLargo() != null && elemento.getAncho() != null
+                        && elemento.getEspesor() != null && elemento.getLargo() > 0
+                        && elemento.getAncho() > 0 && elemento.getEspesor() > 0;
 
             case VIGA:
-                return elemento.getLargo() != null && elemento.getAncho() != null && elemento.getEspesor() != null;
+                return elemento.getLargo() != null && elemento.getAncho() != null
+                        && elemento.getEspesor() != null && elemento.getLargo() > 0
+                        && elemento.getAncho() > 0 && elemento.getEspesor() > 0;
 
             case MURO_LADRILLO:
-                return elemento.getLargo() != null && elemento.getAlto() != null && elemento.getEspesor() != null;
+                return elemento.getLargo() != null && elemento.getAlto() != null
+                        && elemento.getEspesor() != null && elemento.getLargo() > 0
+                        && elemento.getAlto() > 0 && elemento.getEspesor() > 0;
 
             case NIVELACION_MUROS_VERTICAL:
-                return elemento.getLargo() != null && elemento.getAlto() != null && elemento.getEspesor() != null;
+                return elemento.getLargo() != null && elemento.getAlto() != null
+                        && elemento.getEspesor() != null && elemento.getLargo() > 0
+                        && elemento.getAlto() > 0 && elemento.getEspesor() > 0;
 
             case NIVELACION_PISOS_HORIZONTAL:
-                return elemento.getLargo() != null && elemento.getAncho() != null && elemento.getEspesor() != null;
+                return elemento.getLargo() != null && elemento.getAncho() != null
+                        && elemento.getEspesor() != null && elemento.getLargo() > 0
+                        && elemento.getAncho() > 0 && elemento.getEspesor() > 0;
 
             default:
                 return false;
@@ -137,28 +156,54 @@ public class ElementoBO {
      * contrario
      */
     private boolean validarDimensionesPositivas(ElementoDTO elemento) {
-        // Validar cada dimensión que no sea nula
-        if (elemento.getAlto() != null && elemento.getAlto() <= 0) {
+        TipoElementoNegocio tipo = elemento.getTipo();
+
+        if (tipo == null) {
             return false;
         }
 
-        if (elemento.getAncho() != null && elemento.getAncho() <= 0) {
-            return false;
-        }
+        switch (tipo) {
+            case COLUMNA_CUADRADA:
+                return esPositivo(elemento.getAlto())
+                        && esPositivo(elemento.getAncho());
 
-        if (elemento.getLargo() != null && elemento.getLargo() <= 0) {
-            return false;
-        }
+            case LOSA_CONTRAPISO:
+            case LOSA_ENTREPISO:
+                return esPositivo(elemento.getAncho())
+                        && esPositivo(elemento.getLargo())
+                        && esPositivo(elemento.getEspesor());
 
-        if (elemento.getEspesor() != null && elemento.getEspesor() <= 0) {
-            return false;
-        }
+            case VIGA:
+                return esPositivo(elemento.getAncho())
+                        && esPositivo(elemento.getLargo())
+                        && esCeroOPositivo(elemento.getEspesor());
 
-        if (elemento.getProfundidad() != null && elemento.getProfundidad() <= 0) {
-            return false;
-        }
+            case NIVELACION_MUROS_VERTICAL:
+                return esPositivo(elemento.getAlto())
+                        && esPositivo(elemento.getLargo())
+                        && esCeroOPositivo(elemento.getEspesor());
 
-        return true;
+            case NIVELACION_PISOS_HORIZONTAL:
+                return esPositivo(elemento.getAncho())
+                        && esPositivo(elemento.getLargo())
+                        && esCeroOPositivo(elemento.getEspesor());
+
+            case MURO_LADRILLO:
+                return esPositivo(elemento.getAlto())
+                        && esPositivo(elemento.getLargo())
+                        && esPositivo(elemento.getEspesor());
+
+            default:
+                return false;
+        }
+    }
+
+    private boolean esPositivo(Double valor) {
+        return valor != null && valor > 0;
+    }
+
+    private boolean esCeroOPositivo(Double valor) {
+        return valor != null && valor >= 0;
     }
     
 }

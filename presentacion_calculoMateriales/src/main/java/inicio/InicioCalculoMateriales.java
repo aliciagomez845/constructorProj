@@ -4,6 +4,7 @@
  */
 package inicio;
 
+import excepciones.PresentacionException;
 import presentacion.CoordinadorAplicacion;
 
 /**
@@ -15,8 +16,8 @@ public class InicioCalculoMateriales {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        CoordinadorAplicacion.getInstancia().mostrarInicioCalculos();
+    public static void main(String[] args) throws PresentacionException {
+        CoordinadorAplicacion.getInstancia().mostrarObraSeleccionada();
     }
     
 }

@@ -4,6 +4,7 @@
  */
 package presentacion;
 
+import excepciones.PresentacionException;
 import negocio_dto.ElementoDTO;
 
 /**
@@ -13,6 +14,8 @@ import negocio_dto.ElementoDTO;
 public class CoordinadorAplicacion {
     
     private static CoordinadorAplicacion coordinador;
+    private ObraSeleccionadaForm obraSeleccionadaForm;
+    
     private InicioCalculosForm inicioCalculosForm;
     private SeleccionDatosForm seleccionDatosForm;
     private IngresoDimensionesConcretoForm ingresoDimensionesConcretoForm;
@@ -30,6 +33,13 @@ public class CoordinadorAplicacion {
             coordinador = new CoordinadorAplicacion();
         }
         return coordinador;
+    }
+    
+    public void mostrarObraSeleccionada() throws PresentacionException {
+        if (obraSeleccionadaForm == null) {
+            obraSeleccionadaForm = new ObraSeleccionadaForm();
+        }
+        obraSeleccionadaForm.setVisible(true);
     }
     
     public void mostrarInicioCalculos() {
@@ -116,6 +126,8 @@ public class CoordinadorAplicacion {
                 break;
         }
     }
+    
+    
     
     public void reset() {
         if (inicioCalculosForm != null) {

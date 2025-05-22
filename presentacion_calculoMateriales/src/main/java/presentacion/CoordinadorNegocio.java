@@ -9,11 +9,13 @@ import admCalculoMateriales.IAdmCalculoMateriales;
 import admObraSeleccionada.FAdmObraSeleccionada;
 import admObraSeleccionada.IAdmObraSeleccionada;
 import excepciones.AdmCalculoMaterialesException;
+import excepciones.AdmObraSeleccionadaException;
 import excepciones.PresentacionException;
 import java.util.List;
 import negocio_dto.CalculoDTO;
 import negocio_dto.ElementoDTO;
 import negocio_dto.MaterialCalculoDTO;
+import negocio_dto.ObraDTO;
 import negocio_enums.TipoElementoNegocio;
 import negocio_enums.TipoMaterialNegocio;
 
@@ -69,62 +71,62 @@ public class CoordinadorNegocio {
         return coordinadorNegocio;
     }
 
-//    /**
-//     * Activa la sesión de una obra específica.
-//     *
-//     * @param numero Número identificador de la obra
-//     * @return true si se activó correctamente, false en caso contrario
-//     * @throws PresentacionException Si ocurre un error al activar la sesión
-//     */
-//    public boolean activarSesionObra(String numero) throws PresentacionException {
-//        try {
-//            return admObraSeleccionada.activarSesionObra(numero);
-//        } catch (AdmObraSeleccionadaException ex) {
-//            throw new PresentacionException("Error al activar sesión de obra: " + ex.getMessage(), ex);
-//        }
-//    }
-//
-//    /**
-//     * Cierra la sesión de la obra actual.
-//     *
-//     * @throws PresentacionException Si ocurre un error al cerrar la sesión
-//     */
-//    public void cerrarSesionObra() throws PresentacionException {
-//        try {
-//            admObraSeleccionada.cerrarSesionObra();
-//        } catch (AdmObraSeleccionadaException ex) {
-//            throw new PresentacionException("Error al cerrar sesión de obra: " + ex.getMessage(), ex);
-//        }
-//    }
-//
-//    /**
-//     * Obtiene la dirección de la obra actualmente en sesión.
-//     *
-//     * @return Dirección de la obra en sesión
-//     * @throws PresentacionException Si ocurre un error al obtener la dirección
-//     */
-//    public String obtenerDireccionObraActual() throws PresentacionException {
-//        try {
-//            return admObraSeleccionada.obtenerDireccionObra();
-//        } catch (AdmObraSeleccionadaException ex) {
-//            throw new PresentacionException("Error al obtener dirección de obra: " + ex.getMessage(), ex);
-//        }
-//    }
-//
-//    /**
-//     * Obtiene la información completa de la obra actualmente en sesión.
-//     *
-//     * @return Información de la obra en sesión
-//     * @throws PresentacionException Si ocurre un error al obtener la
-//     * información
-//     */
-//    public ObraDTO obtenerObraActual() throws PresentacionException {
-//        try {
-//            return admCalculoMateriales.obtenerObraActual();
-//        } catch (AdmCalculoMaterialesException ex) {
-//            throw new PresentacionException("Error al obtener obra actual: " + ex.getMessage(), ex);
-//        }
-//    }
+    /**
+     * Activa la sesión de una obra específica.
+     *
+     * @param numero Número identificador de la obra
+     * @return true si se activó correctamente, false en caso contrario
+     * @throws PresentacionException Si ocurre un error al activar la sesión
+     */
+    public boolean activarSesionObra(String numero) throws PresentacionException {
+        try {
+            return admObraSeleccionada.activarSesionObra(numero);
+        } catch (AdmObraSeleccionadaException ex) {
+            throw new PresentacionException("Error al activar sesión de obra: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Cierra la sesión de la obra actual.
+     *
+     * @throws PresentacionException Si ocurre un error al cerrar la sesión
+     */
+    public void cerrarSesionObra() throws PresentacionException {
+        try {
+            admObraSeleccionada.cerrarSesionObra();
+        } catch (AdmObraSeleccionadaException ex) {
+            throw new PresentacionException("Error al cerrar sesión de obra: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Obtiene la dirección de la obra actualmente en sesión.
+     *
+     * @return Dirección de la obra en sesión
+     * @throws PresentacionException Si ocurre un error al obtener la dirección
+     */
+    public String obtenerDireccionObraActual() throws PresentacionException {
+        try {
+            return admObraSeleccionada.obtenerDireccionObra();
+        } catch (AdmObraSeleccionadaException ex) {
+            throw new PresentacionException("Error al obtener dirección de obra: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Obtiene la información completa de la obra actualmente en sesión.
+     *
+     * @return Información de la obra en sesión
+     * @throws PresentacionException Si ocurre un error al obtener la
+     * información
+     */
+    public ObraDTO obtenerObraActual() throws PresentacionException {
+        try {
+            return admCalculoMateriales.obtenerObraActual();
+        } catch (AdmCalculoMaterialesException ex) {
+            throw new PresentacionException("Error al obtener obra actual: " + ex.getMessage(), ex);
+        }
+    }
 
     /**
      * Calcula los materiales necesarios para un elemento constructivo

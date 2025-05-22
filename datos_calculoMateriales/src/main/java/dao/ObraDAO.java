@@ -6,10 +6,12 @@ package dao;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
 import conexion.ConexionMongo;
 import dominio_entidades.Obra;
 import excepciones.PersistenciaException;
 import interfaces.IObraDAO;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 /**
@@ -17,11 +19,15 @@ import org.bson.types.ObjectId;
  *
  * Esta clase implementa la interfaz IObraDAO y proporciona métodos para
  * interactuar con la colección "obras" de la base de datos MongoDB.
- * 
- * @author Alejandra García Preciado - 252444
+ *
+ * @author Alejandra García 252444
+ * @author Isabel Valenzuela 253301
+ * @author Ximena Rosales 253088
+ * @author Dario Cortez 252267
+ * @author Jesús Osuna 240549
  */
 public class ObraDAO implements IObraDAO {
-    
+
     /**
      * Referencia a la colección de obras en la base de datos MongoDB.
      */
@@ -36,37 +42,91 @@ public class ObraDAO implements IObraDAO {
     }
 
     /**
-     * Busca una obra por su identificador único.
+     * Verifica si una obra con el número especificado existe en la base de
+     * datos.
      *
-     * @param id identificador único de la obra a buscar
-     * @return la obra encontrada o null si no existe
-     * @throws PersistenciaException si ocurre un error durante la búsqueda
+     * @param numero Número identificador de la obra.
+     * @return true si la obra existe, false en caso contrario.
+     * @throws DAOException Si ocurre un error al acceder a la base de datos.
      */
     @Override
-    public Obra buscarPorId(String id) throws PersistenciaException {
+    public boolean obraExiste(String numero) throws PersistenciaException {
         try {
-            return coleccion.find(Filters.eq("_id", new ObjectId(id))).first();
-        } catch (IllegalArgumentException ex) {
-            throw new PersistenciaException("ID de obra inválido: " + id, ex);
-        } catch (Exception ex) {
-            throw new PersistenciaException("Error al buscar obra por ID: " + id, ex);
+            // Filtro para obtener por numero
+            Bson filtro = Filters.eq("numero", numero);
+
+            // Regresar si lo obtenido es diferente o no a nulo
+            return coleccion.find(filtro).first() != null;
+        } catch (Exception e) {
+            throw new PersistenciaException("Error al validar si la obra existe:" + e.getMessage(), e);
         }
     }
 
     /**
-     * Busca una obra por su dirección.
+     * Obtiene el ID de una obra dado su número.
      *
-     * @param direccion dirección de la obra a buscar
-     * @return la obra encontrada o null si no existe
-     * @throws PersistenciaException si ocurre un error durante la búsqueda
+     * @param numero Número identificador de la obra.
+     * @return ID de la obra como cadena.
+     * @throws DAOException Si ocurre un error durante la consulta.
      */
     @Override
-    public Obra buscarPorDireccion(String direccion) throws PersistenciaException {
+    public String obtenerIdPorNumero(String numero) throws PersistenciaException {
         try {
-            return coleccion.find(Filters.eq("direccion", direccion)).first();
-        } catch (Exception ex) {
-            throw new PersistenciaException("Error al buscar obra por dirección: " + direccion, ex);
+            // Filtro para obtener por numero
+            Bson filtro = Filters.eq("numero", numero);
+            // Solo incluir el id
+            Bson projection = Projections.include("_id");
+
+            // Ejecutar la búsqueda y regresar el id como string
+            return coleccion.find(filtro).projection(projection).first().getObjectString();
+        } catch (Exception e) {
+            throw new PersistenciaException("Error al obtener el id de la obra por numero:" + e.getMessage(), e);
         }
     }
-    
+
+    /**
+     * Obtiene la dirección de una obra dado su ID.
+     *
+     * @param id ID de la obra como cadena.
+     * @return Dirección de la obra.
+     * @throws DAOException Si ocurre un error durante la consulta o el ID no es
+     * válido.
+     */
+    @Override
+    public String obtenerDireccionObra(String id) throws PersistenciaException {
+        try {
+            // Convertir el id de string a ObjectId
+            ObjectId objectId = new ObjectId(id);
+            // Filtro para obtener por id
+            Bson filtro = Filters.eq("_id", objectId);
+
+            // Ejecutar la búsqueda y regresar la dirección
+            return coleccion.find(filtro).first().getDireccion();
+        } catch (Exception e) {
+            throw new PersistenciaException("Error al obtener la dirección de la obra" + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Obtiene una obra completa dado su ID.
+     *
+     * @param id ID de la obra como cadena.
+     * @return Objeto Obra correspondiente al ID.
+     * @throws DAOException Si ocurre un error durante la consulta.
+     */
+    @Override
+    public Obra obtenerObra(String id) throws PersistenciaException {
+
+        try {
+            // Convertir el id de string a ObjectId
+            ObjectId objectId = new ObjectId(id);
+            // Filtro para obtener por id
+            Bson filtro = Filters.eq("_id", objectId);
+
+            // Ejecutar la búsqueda y regresar la obra
+            return coleccion.find(filtro).first();
+        } catch (Exception e) {
+            throw new PersistenciaException("Error al obtener la obra" + e.getMessage(), e);
+        }
+    }
 }

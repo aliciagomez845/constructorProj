@@ -8,7 +8,6 @@ import dominio_entidades.Obra;
 import java.util.ArrayList;
 import java.util.List;
 import negocio_dto.ObraDTO;
-import org.bson.types.ObjectId;
 
 /**
  * Clase encargada de convertir entre las representaciones de Obra.
@@ -21,41 +20,33 @@ import org.bson.types.ObjectId;
 public class ObraMapper {
 
     /**
-     * Convierte un objeto Obra de la capa de dominio a un ObraDTO.
+     * Convierte una entidad Obra a su DTO correspondiente.
      *
-     * @param obra Objeto Obra a convertir
-     * @return Objeto ObraDTO equivalente
+     * @param obra La entidad Obra que será convertida
+     * @return Un ObraDTO con los datos de la entidad
      */
     public static ObraDTO toDTO(Obra obra) {
-        if (obra == null) {
-            return null;
-        }
-
-        String id = null;
-        if (obra.getIdObra() != null) {
-            id = obra.getIdObra().toHexString();
-        }
-
-        return new ObraDTO(id, obra.getDireccion());
+        return new ObraDTO(
+                obra.getNumero(),
+                obra.getDireccion(),
+                obra.getMetrosCubicos(),
+                obra.getCapacidadEmpleados()
+        );
     }
 
     /**
-     * Convierte un objeto ObraDTO de la capa de negocio a un Obra.
+     * Convierte un ObraDTO a la entidad Obra.
      *
-     * @param dto Objeto ObraDTO a convertir
-     * @return Objeto Obra equivalente
+     * @param obraDTO El DTO que contiene los datos para la entidad
+     * @return La entidad Obra creada a partir del DTO
      */
-    public static Obra toEntity(ObraDTO dto) {
-        if (dto == null) {
-            return null;
-        }
-
-        ObjectId id = null;
-        if (dto.getId() != null && !dto.getId().isEmpty()) {
-            id = new ObjectId(dto.getId());
-        }
-
-        return new Obra(id, dto.getDireccion());
+    public static Obra toEntity(ObraDTO obraDTO) {
+        return new Obra(
+                obraDTO.getNumero(),
+                obraDTO.getDireccion(),
+                obraDTO.getMetrosCubicos(),
+                obraDTO.getCapacidadEmpleados()
+        );
     }
 
     /**

@@ -134,7 +134,6 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
         // Columna
         campoAltoColumna.setEnabled(false);
         campoAnchoColumna.setEnabled(false);
-        campoEspesorColumna.setEnabled(false);
 
         // Losa de contrapiso
         campoLargoLosaContrapiso.setEnabled(false);
@@ -155,13 +154,11 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
     private void habilitarCamposColumna() {
         campoAltoColumna.setEnabled(true);
         campoAnchoColumna.setEnabled(true);
-        campoEspesorColumna.setEnabled(true);
     }
 
     private void deshabilitarCamposColumna() {
         campoAltoColumna.setEnabled(false);
         campoAnchoColumna.setEnabled(false);
-        campoEspesorColumna.setEnabled(false);
     }
 
     private void habilitarCamposLosaContrapiso() {
@@ -222,9 +219,6 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
             if (!Utilities.validarCampoNumericoPositivo(campoAnchoColumna, "Ancho (Columna)")) {
                 return false;
             }
-            if (!Utilities.validarCampoNumericoPositivo(campoEspesorColumna, "Espesor (Columna)")) {
-                return false;
-            }
         } else if (jcbLosaContrapiso.isSelected()) {
             if (!Utilities.validarCampoNumericoPositivo(campoLargoLosaContrapiso, "Largo (Losa Contrapiso)")) {
                 return false;
@@ -273,7 +267,7 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
             elemento.setTipo(TipoElementoNegocio.COLUMNA_CUADRADA);
             elemento.setAlto(Double.valueOf(campoAltoColumna.getText().trim()));
             elemento.setAncho(Double.valueOf(campoAnchoColumna.getText().trim()));
-            elemento.setEspesor(Double.valueOf(campoEspesorColumna.getText().trim()));
+            elemento.setEspesor(0.0);
             elemento.setLargo(0.0);
             elemento.setProfundidad(0.0);
         } else if (jcbLosaContrapiso.isSelected()) {
@@ -332,8 +326,6 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
         lblEspesorVigas = new javax.swing.JLabel();
         campoAnchoColumna = new javax.swing.JTextField();
         lblAnchoColumna = new javax.swing.JLabel();
-        lblEspesorColumna = new javax.swing.JLabel();
-        campoEspesorColumna = new javax.swing.JTextField();
         lblAnchoLosaContrapiso = new javax.swing.JLabel();
         campoAnchoLosaContrapiso = new javax.swing.JTextField();
         campoaEspesorLosaContrapiso = new javax.swing.JTextField();
@@ -439,14 +431,6 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
         lblAnchoColumna.setForeground(new java.awt.Color(0, 0, 0));
         lblAnchoColumna.setText("Ancho:");
 
-        lblEspesorColumna.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        lblEspesorColumna.setForeground(new java.awt.Color(0, 0, 0));
-        lblEspesorColumna.setText("Espesor:");
-
-        campoEspesorColumna.setBackground(new java.awt.Color(255, 255, 255));
-        campoEspesorColumna.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        campoEspesorColumna.setForeground(new java.awt.Color(0, 0, 0));
-
         lblAnchoLosaContrapiso.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblAnchoLosaContrapiso.setForeground(new java.awt.Color(0, 0, 0));
         lblAnchoLosaContrapiso.setText("Ancho:");
@@ -540,11 +524,7 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
                                         .addGap(18, 18, 18)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(lblAnchoColumna, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(campoAnchoColumna, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGap(18, 18, 18)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(campoEspesorColumna, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(lblEspesorColumna, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                            .addComponent(campoAnchoColumna, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                     .addGroup(layout.createSequentialGroup()
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(lblLargoLosaContrapiso, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -588,26 +568,19 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(campoLargoLosaContrapiso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(0, 0, Short.MAX_VALUE)
-                                        .addComponent(lblEspesorColumna)
+                                .addComponent(lblSeleccion)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                            .addComponent(lblAltoColumna)
+                                            .addComponent(jcbColumna))
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(campoEspesorColumna, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(lblSeleccion)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                                    .addComponent(lblAltoColumna)
-                                                    .addComponent(jcbColumna))
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(campoAltoColumna, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                                .addComponent(lblAnchoColumna)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(campoAnchoColumna, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                        .addComponent(campoAltoColumna, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addComponent(lblAnchoColumna)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(campoAnchoColumna, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -694,7 +667,6 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
     private javax.swing.JTextField campoAnchoLosaContrapiso;
     private javax.swing.JTextField campoAnchoLosaEntrepiso;
     private javax.swing.JTextField campoAnchoVigas;
-    private javax.swing.JTextField campoEspesorColumna;
     private javax.swing.JTextField campoEspesorLosaEntrepiso;
     private javax.swing.JTextField campoEspesorVigas;
     private javax.swing.JTextField campoLargoLosaContrapiso;
@@ -710,7 +682,6 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
     private javax.swing.JLabel lblAnchoLosaContrapiso;
     private javax.swing.JLabel lblAnchoLosaEntrepiso;
     private javax.swing.JLabel lblAnchoVigas;
-    private javax.swing.JLabel lblEspesorColumna;
     private javax.swing.JLabel lblEspesorLosaContrapiso;
     private javax.swing.JLabel lblEspesorLosaEntrepiso;
     private javax.swing.JLabel lblEspesorVigas;

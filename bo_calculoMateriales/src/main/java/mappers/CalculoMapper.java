@@ -56,7 +56,8 @@ public class CalculoMapper {
         // Crear una ObraDTO con el ID de la obra
         ObraDTO obraDTO = null;
         if (calculo.getObra() != null) {
-            obraDTO = new ObraDTO(calculo.getObra().toHexString(), null);
+            obraDTO = new ObraDTO();
+            obraDTO.setId(calculo.getObra().toHexString());
         }
 
         // Calcular el volumen
