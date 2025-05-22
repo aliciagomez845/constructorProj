@@ -42,6 +42,7 @@ public class CalculoMapper {
      */
     public static CalculoDTO toDTO(Calculo calculo) {
         if (calculo == null) {
+            LOGGER.warning("Intento de convertir un Calculo null a DTO");
             return null;
         }
 
@@ -52,17 +53,26 @@ public class CalculoMapper {
                 fecha = calculo.getFecha().toInstant()
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate();
+            } else {
+                LOGGER.warning("Cálculo sin fecha: " + (calculo.getId() != null ? calculo.getId().toHexString() : "ID null"));
             }
 
             // Convertir el elemento
             ElementoDTO elementoDTO = ElementoMapper.toDTO(calculo.getElemento());
+            if (elementoDTO == null) {
+                LOGGER.warning("No se pudo convertir el elemento del cálculo");
+            }
 
             // Convertir la lista de materiales calculados
             List<MaterialCalculoDTO> materialesDTO = MaterialCalculoMapper.toDTOList(calculo.getMaterialesCalculados());
+            if (materialesDTO == null || materialesDTO.isEmpty()) {
+                LOGGER.warning("No se encontraron materiales calculados para el cálculo");
+                materialesDTO = new ArrayList<>();
+            }
 
             // Obtener la obra completa usando el BO
             ObraDTO obraDTO = null;
-            if (calculo.getIdObra()!= null) {
+            if (calculo.getIdObra() != null) {
                 try {
                     // Obtener la obra completa desde el BO
                     obraDTO = ObraBO.getInstance().obtenerObra(calculo.getIdObra().toHexString());
@@ -77,6 +87,11 @@ public class CalculoMapper {
                     obraDTO.setId(calculo.getIdObra().toHexString());
                     obraDTO.setDireccion("Dirección no disponible");
                 }
+            } else {
+                LOGGER.warning("Cálculo sin ID de obra asociada");
+                // Crear obra por defecto
+                obraDTO = new ObraDTO();
+                obraDTO.setDireccion("Obra no especificada");
             }
 
             // Calcular el volumen
@@ -84,6 +99,7 @@ public class CalculoMapper {
 
             CalculoDTO calculoDTO = new CalculoDTO(obraDTO, fecha, volumenCalculado, elementoDTO, materialesDTO);
 
+            LOGGER.info("Conversión exitosa de Calculo a DTO");
             return calculoDTO;
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error al convertir Calculo a CalculoDTO", ex);
@@ -99,6 +115,7 @@ public class CalculoMapper {
      */
     public static Calculo toEntity(CalculoDTO dto) {
         if (dto == null) {
+            LOGGER.warning("Intento de convertir un CalculoDTO null a entidad");
             return null;
         }
 
@@ -107,24 +124,48 @@ public class CalculoMapper {
             Date fecha = null;
             if (dto.getFecha() != null) {
                 fecha = Date.from(dto.getFecha().atStartOfDay(ZoneId.systemDefault()).toInstant());
+            } else {
+                // Si no hay fecha, usar la fecha actual
+                fecha = new Date();
+                LOGGER.info("DTO sin fecha, usando fecha actual");
             }
 
             // Convertir el elemento
             Elemento elemento = ElementoMapper.toEntity(dto.getElemento());
+            if (elemento == null) {
+                LOGGER.warning("No se pudo convertir el elemento del DTO");
+                throw new IllegalArgumentException("El elemento del cálculo es requerido");
+            }
 
             // Convertir la lista de materiales calculados
             List<MaterialCalculo> materiales = MaterialCalculoMapper.toEntityList(dto.getMaterialesCalculados());
+            if (materiales == null) {
+                materiales = new ArrayList<>();
+                LOGGER.warning("DTO sin materiales calculados, inicializando lista vacía");
+            }
 
             // Crear el ID de la obra
             ObjectId idObra = null;
-            if (dto.getObra() != null && dto.getObra().getId() != null) {
-                idObra = new ObjectId(dto.getObra().getId());
+            if (dto.getObra() != null && dto.getObra().getId() != null && !dto.getObra().getId().trim().isEmpty()) {
+                try {
+                    idObra = new ObjectId(dto.getObra().getId());
+                } catch (IllegalArgumentException ex) {
+                    LOGGER.log(Level.WARNING, "ID de obra inválido en DTO: " + dto.getObra().getId(), ex);
+                    throw new IllegalArgumentException("ID de obra inválido: " + dto.getObra().getId());
+                }
+            } else {
+                LOGGER.warning("DTO sin ID de obra válido");
+                throw new IllegalArgumentException("El ID de la obra es requerido");
             }
 
-            return new Calculo(fecha, elemento, idObra, materiales);
+            // Crear el cálculo sin especificar ID (se generará automáticamente)
+            Calculo calculo = new Calculo(fecha, elemento, idObra, materiales);
+
+            LOGGER.info("Conversión exitosa de DTO a Calculo");
+            return calculo;
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error al convertir CalculoDTO a Calculo", ex);
-            return null;
+            throw new RuntimeException("Error en conversión de DTO a entidad: " + ex.getMessage(), ex);
         }
     }
 
@@ -136,17 +177,26 @@ public class CalculoMapper {
      */
     public static List<CalculoDTO> toDTOList(List<Calculo> calculos) {
         if (calculos == null) {
+            LOGGER.warning("Lista de cálculos null, retornando lista vacía");
             return new ArrayList<>();
         }
 
         List<CalculoDTO> dtos = new ArrayList<>();
-        for (Calculo calculo : calculos) {
-            CalculoDTO dto = toDTO(calculo);
-            if (dto != null) {
-                dtos.add(dto);
+        for (int i = 0; i < calculos.size(); i++) {
+            Calculo calculo = calculos.get(i);
+            try {
+                CalculoDTO dto = toDTO(calculo);
+                if (dto != null) {
+                    dtos.add(dto);
+                } else {
+                    LOGGER.warning("No se pudo convertir el cálculo en posición " + i);
+                }
+            } catch (Exception ex) {
+                LOGGER.log(Level.WARNING, "Error al convertir cálculo en posición " + i, ex);
             }
         }
 
+        LOGGER.info("Conversión de lista: " + calculos.size() + " cálculos -> " + dtos.size() + " DTOs");
         return dtos;
     }
 
@@ -158,17 +208,26 @@ public class CalculoMapper {
      */
     public static List<Calculo> toEntityList(List<CalculoDTO> dtos) {
         if (dtos == null) {
+            LOGGER.warning("Lista de DTOs null, retornando lista vacía");
             return new ArrayList<>();
         }
 
         List<Calculo> calculos = new ArrayList<>();
-        for (CalculoDTO dto : dtos) {
-            Calculo calculo = toEntity(dto);
-            if (calculo != null) {
-                calculos.add(calculo);
+        for (int i = 0; i < dtos.size(); i++) {
+            CalculoDTO dto = dtos.get(i);
+            try {
+                Calculo calculo = toEntity(dto);
+                if (calculo != null) {
+                    calculos.add(calculo);
+                } else {
+                    LOGGER.warning("No se pudo convertir el DTO en posición " + i);
+                }
+            } catch (Exception ex) {
+                LOGGER.log(Level.WARNING, "Error al convertir DTO en posición " + i, ex);
             }
         }
 
+        LOGGER.info("Conversión de lista: " + dtos.size() + " DTOs -> " + calculos.size() + " cálculos");
         return calculos;
     }
 
@@ -181,6 +240,7 @@ public class CalculoMapper {
      */
     private static Double calcularVolumen(Elemento elemento) {
         if (elemento == null) {
+            LOGGER.warning("Elemento null para cálculo de volumen");
             return 0.0;
         }
 
@@ -204,9 +264,9 @@ public class CalculoMapper {
                     break;
 
                 case VIGA:
-                    // Para vigas: largo * ancho * espesor
-                    if (elemento.getLargo() != null && elemento.getAncho() != null && elemento.getEspesor() != null) {
-                        volumen = elemento.getLargo() * elemento.getAncho() * elemento.getEspesor();
+                    // Para vigas: largo * ancho * alto
+                    if (elemento.getLargo() != null && elemento.getAncho() != null && elemento.getAlto() != null) {
+                        volumen = elemento.getLargo() * elemento.getAncho() * elemento.getAlto();
                     }
                     break;
 
@@ -232,6 +292,7 @@ public class CalculoMapper {
                     break;
 
                 default:
+                    LOGGER.warning("Tipo de elemento no reconocido: " + elemento.getTipo());
                     volumen = 0.0;
             }
         } catch (Exception ex) {
@@ -239,6 +300,7 @@ public class CalculoMapper {
             volumen = 0.0;
         }
 
+        LOGGER.info("Volumen calculado: " + volumen + " m³ para elemento tipo " + elemento.getTipo());
         return volumen;
     }
 

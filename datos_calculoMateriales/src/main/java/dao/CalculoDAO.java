@@ -6,6 +6,7 @@ package dao;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.result.InsertOneResult;
 import conexion.ConexionMongo;
 import dominio_entidades.Calculo;
 import excepciones.PersistenciaException;
@@ -64,24 +65,49 @@ public class CalculoDAO implements ICalculoDAO {
                 throw new PersistenciaException("El cálculo debe tener una obra asignada");
             }
 
-            if (calculo.getIdCalculo() == null) {
-                // Nuevo cálculo
-                calculo.setFecha(new Date()); // Establecer fecha actual 
+            if (calculo.getId() == null) {
+                // Nuevo cálculo - establecer fecha actual, MongoDB generará el ID automáticamente
+                calculo.setFecha(new Date());
 
                 LOGGER.info("Insertando nuevo cálculo para obra: " + calculo.getIdObra().toHexString());
-                coleccion.insertOne(calculo);
-                LOGGER.info("Cálculo insertado con ID: " + calculo.getIdCalculo().toHexString());
+
+                // Insertar el documento - MongoDB asignará automáticamente el _id al campo idCalculo
+                InsertOneResult result = coleccion.insertOne(calculo);
+
+                if (!result.wasAcknowledged()) {
+                    throw new PersistenciaException("La inserción no fue reconocida por la base de datos");
+                }
+
+                // Verificar que el ID se estableció correctamente después de la inserción
+                if (calculo.getId() == null) {
+                    throw new PersistenciaException("Error: el ID del cálculo no se estableció después de la inserción");
+                }
+
+                LOGGER.info("Cálculo insertado exitosamente con ID: " + calculo.getId().toHexString());
             } else {
                 // Actualizar cálculo existente
-                LOGGER.info("Actualizando cálculo existente: " + calculo.getIdCalculo().toHexString());
-                coleccion.findOneAndReplace(Filters.eq("_id", calculo.getIdCalculo()), calculo);
+                LOGGER.info("Actualizando cálculo existente: " + calculo.getId().toHexString());
+
+                Calculo calculoActualizado = coleccion.findOneAndReplace(
+                        Filters.eq("_id", calculo.getId()),
+                        calculo
+                );
+
+                if (calculoActualizado == null) {
+                    throw new PersistenciaException("No se encontró el cálculo a actualizar con ID: "
+                            + calculo.getId().toHexString());
+                }
+
                 LOGGER.info("Cálculo actualizado correctamente");
             }
 
             return calculo;
+        } catch (PersistenciaException e) {
+            // Re-lanzar excepciones de persistencia
+            throw e;
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error al guardar cálculo", e);
-            throw new PersistenciaException("Error al guardar cálculo: " + e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, "Error inesperado al guardar cálculo", e);
+            throw new PersistenciaException("Error inesperado al guardar cálculo: " + e.getMessage(), e);
         }
     }
 
@@ -96,6 +122,10 @@ public class CalculoDAO implements ICalculoDAO {
     public Calculo buscarPorId(String id) throws PersistenciaException {
         try {
             LOGGER.info("Buscando cálculo por ID: " + id);
+
+            if (id == null || id.trim().isEmpty()) {
+                throw new PersistenciaException("El ID del cálculo no puede ser nulo o vacío");
+            }
 
             ObjectId objectId = new ObjectId(id);
             Calculo resultado = coleccion.find(Filters.eq("_id", objectId)).first();
@@ -122,6 +152,10 @@ public class CalculoDAO implements ICalculoDAO {
     public List<Calculo> buscarPorObra(String idObra) throws PersistenciaException {
         try {
             LOGGER.info("Buscando cálculos para obra: " + idObra);
+
+            if (idObra == null || idObra.trim().isEmpty()) {
+                throw new PersistenciaException("El ID de la obra no puede ser nulo o vacío");
+            }
 
             // Verificar conexión
             long totalDocumentos = coleccion.countDocuments();

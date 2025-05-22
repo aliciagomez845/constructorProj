@@ -25,7 +25,7 @@ public class Calculo {
     /**
      * Identificador único del cálculo en la base de datos.
      */
-    private ObjectId idCalculo;
+    private ObjectId id;
 
     /**
      * Fecha en que se realizó el cálculo.
@@ -52,6 +52,8 @@ public class Calculo {
      */
     public Calculo() {
     }
+    
+    
 
     /**
      * Constructor con parámetros.
@@ -74,17 +76,17 @@ public class Calculo {
      *
      * @return el identificador del cálculo
      */
-    public ObjectId getIdCalculo() {
-        return idCalculo;
+    public ObjectId getId() {
+        return id;
     }
 
     /**
      * Establece el identificador único del cálculo.
      *
-     * @param idCalculo el nuevo identificador del cálculo
+     * @param id el nuevo identificador del cálculo
      */
-    public void setIdCalculo(ObjectId idCalculo) {
-        this.idCalculo = idCalculo;
+    public void setId(ObjectId id) {
+        this.id = id;
     }
 
     /**
@@ -124,8 +126,7 @@ public class Calculo {
     }
 
     /**
-     * Obtiene la obra a la que pertenece el elemento calculado. Método
-     * alternativo para compatibilidad.
+     * Obtiene la obra a la que pertenece el elemento calculado.
      *
      * @return el ID de la obra
      */
@@ -134,8 +135,7 @@ public class Calculo {
     }
 
     /**
-     * Establece la obra a la que pertenece el elemento calculado. Método
-     * alternativo para compatibilidad.
+     * Establece la obra a la que pertenece el elemento calculado.
      *
      * @param idObra la nueva obra
      */
@@ -162,24 +162,23 @@ public class Calculo {
     }
     
     /**
-     * Devuelve el ID del curso en formato String (hexadecimal), útil para capas
-     * que no deben manipular directamente ObjectId.
+     * Devuelve el ID del cálculo en formato String (hexadecimal), útil para
+     * capas que no deben manipular directamente ObjectId.
      *
      * @return ID como cadena de texto o null si no está definido.
      */
     @BsonIgnore
     public String getObjectString() {
-        // return id != null ? id.toHexString() : null;
-        return this.idCalculo.toString();
+        return this.id != null ? this.id.toHexString() : null;
     }
 
     /**
-     * Establece el ObjectId del curso a partir de una cadena hexadecimal.
+     * Establece el ObjectId del cálculo a partir de una cadena hexadecimal.
      *
-     * @param idStr ID como cadena. Si es null vacío, se asigna null.
+     * @param idStr ID como cadena. Si es null o vacío, se asigna null.
      */
     public void setObjectString(String idStr) {
-        this.idCalculo = (idStr != null && !idStr.isBlank()) ? new ObjectId(idStr) : null;
+        this.id = (idStr != null && !idStr.isBlank()) ? new ObjectId(idStr) : null;
     }
 
     /**
@@ -188,10 +187,10 @@ public class Calculo {
     @Override
     public String toString() {
         return "Calculo{"
-                + "idCalculo=" + idCalculo
+                + "idCalculo=" + (id != null ? id.toHexString() : "null")
                 + ", fecha=" + fecha
                 + ", elemento=" + (elemento != null ? elemento.getTipo() : "null")
-                + ", idObra=" + idObra
+                + ", idObra=" + (idObra != null ? idObra.toHexString() : "null")
                 + ", materialesCalculados=" + (materialesCalculados != null ? materialesCalculados.size() : 0)
                 + '}';
     }
