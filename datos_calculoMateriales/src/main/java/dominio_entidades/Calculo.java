@@ -6,6 +6,7 @@ package dominio_entidades;
 
 import java.util.Date;
 import java.util.List;
+import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.types.ObjectId;
 
 /**
@@ -123,20 +124,22 @@ public class Calculo {
     }
 
     /**
-     * Obtiene la obra a la que pertenece el elemento calculado.
+     * Obtiene la obra a la que pertenece el elemento calculado. Método
+     * alternativo para compatibilidad.
      *
-     * @return la obra
+     * @return el ID de la obra
      */
-    public ObjectId getObra() {
+    public ObjectId getIdObra() {
         return idObra;
     }
 
     /**
-     * Establece la obra a la que pertenece el elemento calculado.
+     * Establece la obra a la que pertenece el elemento calculado. Método
+     * alternativo para compatibilidad.
      *
      * @param idObra la nueva obra
      */
-    public void setObra(ObjectId idObra) {
+    public void setIdObra(ObjectId idObra) {
         this.idObra = idObra;
     }
 
@@ -156,6 +159,41 @@ public class Calculo {
      */
     public void setMaterialesCalculados(List<MaterialCalculo> materialesCalculados) {
         this.materialesCalculados = materialesCalculados;
+    }
+    
+    /**
+     * Devuelve el ID del curso en formato String (hexadecimal), útil para capas
+     * que no deben manipular directamente ObjectId.
+     *
+     * @return ID como cadena de texto o null si no está definido.
+     */
+    @BsonIgnore
+    public String getObjectString() {
+        // return id != null ? id.toHexString() : null;
+        return this.idCalculo.toString();
+    }
+
+    /**
+     * Establece el ObjectId del curso a partir de una cadena hexadecimal.
+     *
+     * @param idStr ID como cadena. Si es null vacío, se asigna null.
+     */
+    public void setObjectString(String idStr) {
+        this.idCalculo = (idStr != null && !idStr.isBlank()) ? new ObjectId(idStr) : null;
+    }
+
+    /**
+     * Método toString.
+     */
+    @Override
+    public String toString() {
+        return "Calculo{"
+                + "idCalculo=" + idCalculo
+                + ", fecha=" + fecha
+                + ", elemento=" + (elemento != null ? elemento.getTipo() : "null")
+                + ", idObra=" + idObra
+                + ", materialesCalculados=" + (materialesCalculados != null ? materialesCalculados.size() : 0)
+                + '}';
     }
 
 }

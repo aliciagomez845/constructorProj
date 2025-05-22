@@ -4,11 +4,15 @@
  */
 package presentacion;
 
+import excepciones.PresentacionException;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -28,6 +32,8 @@ import utilities.Utilities;
  */
 public class InicioCalculosForm extends javax.swing.JFrame {
 
+    private static final Logger LOGGER = Logger.getLogger(InicioCalculosForm.class.getName());
+
     /**
      * Referencia al coordinador de aplicación. Permite la navegación entre los
      * distintos formularios del sistema.
@@ -41,20 +47,33 @@ public class InicioCalculosForm extends javax.swing.JFrame {
     private CoordinadorNegocio coordinadorNegocio;
 
     /**
-     * Historial de cálculos.
+     * Historial de cálculos completo.
      */
-    private List<CalculoDTO> listaCalculos;
+    private List<CalculoDTO> listaCalculosCompleta;
+
+    /**
+     * Historial de cálculos filtrado (para búsquedas).
+     */
+    private List<CalculoDTO> listaCalculosFiltrada;
 
     /**
      * Creates new form InicioCalculosForm
      */
     public InicioCalculosForm() {
+        // Inicializar las listas
+        this.listaCalculosCompleta = new ArrayList<>();
+        this.listaCalculosFiltrada = new ArrayList<>();
+
         initComponents();
+
         this.coordinador = CoordinadorAplicacion.getInstancia();
         this.coordinadorNegocio = CoordinadorNegocio.getInstancia();
 
         // Centrar la ventana
         this.setLocationRelativeTo(null);
+
+        // Configurar fondo blanco
+        getContentPane().setBackground(java.awt.Color.WHITE);
 
         // Limpiar formulario al inicializar
         limpiarFormulario();
@@ -81,45 +100,56 @@ public class InicioCalculosForm extends javax.swing.JFrame {
      * Configura la tabla de historial con el botón "Consultar".
      */
     private void configurarTablaHistorial() {
-        // Modelo de tabla personalizado
-        DefaultTableModel modelo = new DefaultTableModel(
-                new Object[][]{},
-                new String[]{"Dirección", "Fecha", "Acciones"}
-        ) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return column == 2; // Solo la columna de acciones es editable
-            }
+        try {
+            // Modelo de tabla personalizado
+            DefaultTableModel modelo = new DefaultTableModel(
+                    new Object[][]{},
+                    new String[]{"Dirección", "Fecha", "Acciones"}
+            ) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return column == 2; // Solo la columna de acciones es editable
+                }
 
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                return columnIndex == 2 ? JButton.class : Object.class;
-            }
-        };
+                @Override
+                public Class<?> getColumnClass(int columnIndex) {
+                    return columnIndex == 2 ? JButton.class : Object.class;
+                }
+            };
 
-        tblHistorial.setModel(modelo);
+            tblHistorial.setModel(modelo);
 
-        // Configurar renderer para botones
-        tblHistorial.getColumnModel().getColumn(2).setCellRenderer(new TableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value,
-                    boolean isSelected, boolean hasFocus, int row, int column) {
-                JButton button = new JButton("Consultar");
-                button.setBackground(new java.awt.Color(95, 168, 211));
-                button.setForeground(new java.awt.Color(255, 255, 255));
-                button.setFont(new java.awt.Font("Segoe UI", 1, 14));
-                return button;
-            }
-        });
+            // Configurar renderer para botones
+            tblHistorial.getColumnModel().getColumn(2).setCellRenderer(new TableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value,
+                        boolean isSelected, boolean hasFocus, int row, int column) {
+                    JButton button = new JButton("Consultar");
+                    button.setBackground(new java.awt.Color(95, 168, 211));
+                    button.setForeground(new java.awt.Color(255, 255, 255));
+                    button.setFont(new java.awt.Font("Segoe UI", 1, 14));
+                    button.setBorderPainted(false);
+                    return button;
+                }
+            });
 
-        // Configurar editor para botones
-        tblHistorial.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(tblHistorial));
+            // Configurar editor para botones
+            tblHistorial.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(tblHistorial));
 
-        // Ajustar ancho de columnas
-        TableColumn column = tblHistorial.getColumnModel().getColumn(2);
-        column.setPreferredWidth(100);
-        column.setMaxWidth(100);
-        column.setMinWidth(100);
+            // Ajustar ancho de columnas
+            TableColumn columnAcciones = tblHistorial.getColumnModel().getColumn(2);
+            columnAcciones.setPreferredWidth(100);
+            columnAcciones.setMaxWidth(100);
+            columnAcciones.setMinWidth(100);
+
+            // Ajustar altura de filas
+            tblHistorial.setRowHeight(35);
+
+            LOGGER.info("Tabla de historial configurada correctamente");
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error al configurar tabla de historial", ex);
+            Utilities.mostrarMensajeError("Error al configurar la tabla de historial");
+        }
     }
 
     /**
@@ -127,26 +157,94 @@ public class InicioCalculosForm extends javax.swing.JFrame {
      */
     private void cargarHistorialCalculos() {
         try {
-            // Obtener historial de cálculos del coordinador de negocio
-            listaCalculos = coordinadorNegocio.obtenerHistorialCalculos();
+            LOGGER.info("Iniciando carga del historial de cálculos");
 
+            // Obtener historial de cálculos del coordinador de negocio
+            List<CalculoDTO> calculos = coordinadorNegocio.obtenerHistorialCalculos();
+
+            if (calculos == null) {
+                calculos = new ArrayList<>();
+                LOGGER.warning("El coordinador devolvió null, inicializando lista vacía");
+            }
+
+            LOGGER.info("Cálculos obtenidos: " + calculos.size());
+
+            // Almacenar la lista completa
+            this.listaCalculosCompleta = new ArrayList<>(calculos);
+            this.listaCalculosFiltrada = new ArrayList<>(calculos);
+
+            // Actualizar la tabla
+            actualizarTabla(this.listaCalculosFiltrada);
+
+            LOGGER.info("Historial de cálculos cargado exitosamente. Total: " + calculos.size());
+
+        } catch (PresentacionException ex) {
+            LOGGER.log(Level.SEVERE, "Error de presentación al cargar historial", ex);
+            Utilities.mostrarMensajeError("Error al cargar el historial de cálculos: " + ex.getMessage());
+
+            // Inicializar listas vacías en caso de error
+            this.listaCalculosCompleta = new ArrayList<>();
+            this.listaCalculosFiltrada = new ArrayList<>();
+            actualizarTabla(this.listaCalculosFiltrada);
+
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error inesperado al cargar historial", ex);
+            Utilities.mostrarMensajeError("Error inesperado al cargar el historial: " + ex.getMessage());
+
+            // Inicializar listas vacías en caso de error
+            this.listaCalculosCompleta = new ArrayList<>();
+            this.listaCalculosFiltrada = new ArrayList<>();
+            actualizarTabla(this.listaCalculosFiltrada);
+        }
+    }
+
+    /**
+     * Actualiza la tabla con la lista de cálculos proporcionada.
+     *
+     * @param calculos Lista de cálculos a mostrar
+     */
+    private void actualizarTabla(List<CalculoDTO> calculos) {
+        try {
             // Limpiar la tabla
             DefaultTableModel modelo = (DefaultTableModel) tblHistorial.getModel();
             modelo.setRowCount(0);
 
             // Agregar los cálculos a la tabla
-            if (listaCalculos != null && !listaCalculos.isEmpty()) {
+            if (calculos != null && !calculos.isEmpty()) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-                for (CalculoDTO calculo : listaCalculos) {
-                    String direccion = calculo.getObra().getDireccion();
-                    String fecha = calculo.getFecha().format(formatter);
+                for (CalculoDTO calculo : calculos) {
+                    try {
+                        String direccion = "Dirección no disponible";
+                        String fecha = "Fecha no disponible";
 
-                    modelo.addRow(new Object[]{direccion, fecha, "Consultar"});
+                        // Obtener dirección
+                        if (calculo.getObra() != null && calculo.getObra().getDireccion() != null) {
+                            direccion = calculo.getObra().getDireccion();
+                        }
+
+                        // Obtener fecha
+                        if (calculo.getFecha() != null) {
+                            fecha = calculo.getFecha().format(formatter);
+                        }
+
+                        modelo.addRow(new Object[]{direccion, fecha, "Consultar"});
+
+                    } catch (Exception ex) {
+                        LOGGER.log(Level.WARNING, "Error al procesar cálculo individual", ex);
+                        // Agregar fila con datos por defecto en caso de error
+                        modelo.addRow(new Object[]{"Error al cargar", "Error al cargar", "Consultar"});
+                    }
                 }
+
+                LOGGER.info("Tabla actualizada con " + calculos.size() + " registros");
+            } else {
+                LOGGER.info("No hay cálculos para mostrar en la tabla");
             }
+
         } catch (Exception ex) {
-            Utilities.mostrarMensajeError("Error al cargar el historial de cálculos: " + ex.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al actualizar tabla", ex);
+            Utilities.mostrarMensajeError("Error al actualizar la tabla de historial");
         }
     }
 
@@ -154,26 +252,38 @@ public class InicioCalculosForm extends javax.swing.JFrame {
      * Busca cálculos por dirección.
      */
     private void buscarPorDireccion() {
-        String direccionBusqueda = campoDireccion.getText().trim().toLowerCase();
+        try {
+            String direccionBusqueda = campoDireccion.getText().trim().toLowerCase();
 
-        if (direccionBusqueda.isEmpty() || listaCalculos == null) {
-            cargarHistorialCalculos();
-            return;
-        }
-
-        // Filtrar los cálculos por dirección
-        DefaultTableModel modelo = (DefaultTableModel) tblHistorial.getModel();
-        modelo.setRowCount(0);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        for (CalculoDTO calculo : listaCalculos) {
-            String direccion = calculo.getObra().getDireccion().toLowerCase();
-
-            if (direccion.contains(direccionBusqueda)) {
-                String fecha = calculo.getFecha().format(formatter);
-                modelo.addRow(new Object[]{calculo.getObra().getDireccion(), fecha, "Consultar"});
+            if (direccionBusqueda.isEmpty()) {
+                // Si no hay búsqueda, mostrar todos los cálculos
+                this.listaCalculosFiltrada = new ArrayList<>(this.listaCalculosCompleta);
+                actualizarTabla(this.listaCalculosFiltrada);
+                return;
             }
+
+            // Filtrar los cálculos por dirección
+            this.listaCalculosFiltrada = new ArrayList<>();
+
+            for (CalculoDTO calculo : this.listaCalculosCompleta) {
+                try {
+                    if (calculo.getObra() != null
+                            && calculo.getObra().getDireccion() != null
+                            && calculo.getObra().getDireccion().toLowerCase().contains(direccionBusqueda)) {
+                        this.listaCalculosFiltrada.add(calculo);
+                    }
+                } catch (Exception ex) {
+                    LOGGER.log(Level.WARNING, "Error al filtrar cálculo individual", ex);
+                }
+            }
+
+            actualizarTabla(this.listaCalculosFiltrada);
+
+            LOGGER.info("Búsqueda realizada. Resultados encontrados: " + this.listaCalculosFiltrada.size());
+
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error al buscar por dirección", ex);
+            Utilities.mostrarMensajeError("Error al realizar la búsqueda");
         }
     }
 
@@ -183,38 +293,57 @@ public class InicioCalculosForm extends javax.swing.JFrame {
      * @param indice Índice del cálculo seleccionado
      */
     private void consultarCalculo(int indice) {
-        if (indice < 0 || indice >= listaCalculos.size()) {
-            return;
-        }
+        try {
+            if (indice < 0 || this.listaCalculosFiltrada == null || indice >= this.listaCalculosFiltrada.size()) {
+                Utilities.mostrarMensajeError("Índice de cálculo inválido");
+                return;
+            }
 
-        CalculoDTO calculo = listaCalculos.get(indice);
+            CalculoDTO calculo = this.listaCalculosFiltrada.get(indice);
 
-        // Establecer el elemento del cálculo consultado
-        coordinadorNegocio.setElementoActual(calculo.getElemento());
+            if (calculo == null) {
+                Utilities.mostrarMensajeError("Cálculo no disponible");
+                return;
+            }
 
-        // Determinar qué pantalla abrir según el tipo de elemento
-        switch (calculo.getElemento().getTipo()) {
-            case COLUMNA_CUADRADA:
-            case LOSA_CONTRAPISO:
-            case LOSA_ENTREPISO:
-            case VIGA:
-                // Abrir pantalla de concreto
-                this.dispose();
-                coordinador.mostrarCalculoMaterialesConcreto();
-                break;
+            // Establecer el elemento del cálculo consultado
+            coordinadorNegocio.setElementoActual(calculo.getElemento());
 
-            case NIVELACION_MUROS_VERTICAL:
-            case NIVELACION_PISOS_HORIZONTAL:
-                // Abrir pantalla de nivelación
-                this.dispose();
-                coordinador.mostrarCalculoMaterialesNivelacion();
-                break;
+            // Determinar qué pantalla abrir según el tipo de elemento
+            if (calculo.getElemento() != null && calculo.getElemento().getTipo() != null) {
+                switch (calculo.getElemento().getTipo()) {
+                    case COLUMNA_CUADRADA:
+                    case LOSA_CONTRAPISO:
+                    case LOSA_ENTREPISO:
+                    case VIGA:
+                        // Abrir pantalla de concreto
+                        this.dispose();
+                        coordinador.mostrarCalculoMaterialesConcreto();
+                        break;
 
-            case MURO_LADRILLO:
-                // Abrir pantalla de mampostería
-                this.dispose();
-                coordinador.mostrarCalculoMaterialesMamposteria();
-                break;
+                    case NIVELACION_MUROS_VERTICAL:
+                    case NIVELACION_PISOS_HORIZONTAL:
+                        // Abrir pantalla de nivelación
+                        this.dispose();
+                        coordinador.mostrarCalculoMaterialesNivelacion();
+                        break;
+
+                    case MURO_LADRILLO:
+                        // Abrir pantalla de mampostería
+                        this.dispose();
+                        coordinador.mostrarCalculoMaterialesMamposteria();
+                        break;
+
+                    default:
+                        Utilities.mostrarMensajeError("Tipo de elemento no reconocido");
+                }
+            } else {
+                Utilities.mostrarMensajeError("Elemento del cálculo no disponible");
+            }
+
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error al consultar cálculo", ex);
+            Utilities.mostrarMensajeError("Error al consultar el cálculo: " + ex.getMessage());
         }
     }
 
@@ -337,17 +466,27 @@ public class InicioCalculosForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevoCalculoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoCalculoActionPerformed
-        // Limpiar cualquier elemento previo antes de iniciar nuevo cálculo
-        coordinadorNegocio.iniciarNuevaSesionCalculo();
-        this.dispose();
-        coordinador.mostrarSeleccionDatos();
+        try {
+            // Limpiar cualquier elemento previo antes de iniciar nuevo cálculo
+            coordinadorNegocio.iniciarNuevaSesionCalculo();
+            this.dispose();
+            coordinador.mostrarSeleccionDatos();
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error al iniciar nuevo cálculo", ex);
+            Utilities.mostrarMensajeError("Error al iniciar nuevo cálculo: " + ex.getMessage());
+        }
     }//GEN-LAST:event_btnNuevoCalculoActionPerformed
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
-        if (Utilities.mostrarConfirmacion("¿Desea salir de la aplicación?")) {
-            // Limpiar datos antes de salir
-            coordinadorNegocio.limpiarElementoActual();
-            this.dispose();
+        try {
+            if (Utilities.mostrarConfirmacion("¿Desea salir de la aplicación?")) {
+                // Limpiar datos antes de salir
+                coordinadorNegocio.limpiarElementoActual();
+                this.dispose();
+                System.exit(0);
+            }
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error al salir de la aplicación", ex);
             System.exit(0);
         }
     }//GEN-LAST:event_btnVolverActionPerformed
@@ -371,13 +510,14 @@ public class InicioCalculosForm extends javax.swing.JFrame {
         public ButtonEditor(JTable tabla) {
             super(new JCheckBox());
             this.tabla = tabla;
-            this.parent = (InicioCalculosForm) tabla.getTopLevelAncestor();
+            this.parent = InicioCalculosForm.this;
 
             button = new JButton();
             button.setOpaque(true);
             button.setBackground(new java.awt.Color(95, 168, 211));
             button.setForeground(new java.awt.Color(255, 255, 255));
             button.setFont(new java.awt.Font("Segoe UI", 1, 14));
+            button.setBorderPainted(false);
 
             button.addActionListener(new ActionListener() {
                 @Override

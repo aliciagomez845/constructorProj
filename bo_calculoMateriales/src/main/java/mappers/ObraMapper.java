@@ -26,12 +26,19 @@ public class ObraMapper {
      * @return Un ObraDTO con los datos de la entidad
      */
     public static ObraDTO toDTO(Obra obra) {
-        return new ObraDTO(
+        if (obra == null) {
+            return null;
+        }
+
+        ObraDTO obraDTO = new ObraDTO(
+                obra.getId() != null ? obra.getId().toHexString() : null, 
                 obra.getNumero(),
                 obra.getDireccion(),
                 obra.getMetrosCubicos(),
                 obra.getCapacidadEmpleados()
         );
+
+        return obraDTO;
     }
 
     /**
@@ -41,12 +48,23 @@ public class ObraMapper {
      * @return La entidad Obra creada a partir del DTO
      */
     public static Obra toEntity(ObraDTO obraDTO) {
-        return new Obra(
+        if (obraDTO == null) {
+            return null;
+        }
+
+        Obra obra = new Obra(
                 obraDTO.getNumero(),
                 obraDTO.getDireccion(),
                 obraDTO.getMetrosCubicos(),
                 obraDTO.getCapacidadEmpleados()
         );
+
+        // Establecer el ID si está presente
+        if (obraDTO.getId() != null && !obraDTO.getId().isEmpty()) {
+            obra.setObjectString(obraDTO.getId());
+        }
+
+        return obra;
     }
 
     /**
@@ -62,7 +80,10 @@ public class ObraMapper {
 
         List<ObraDTO> dtos = new ArrayList<>();
         for (Obra obra : obras) {
-            dtos.add(toDTO(obra));
+            ObraDTO dto = toDTO(obra);
+            if (dto != null) {
+                dtos.add(dto);
+            }
         }
 
         return dtos;
@@ -81,7 +102,10 @@ public class ObraMapper {
 
         List<Obra> obras = new ArrayList<>();
         for (ObraDTO dto : dtos) {
-            obras.add(toEntity(dto));
+            Obra obra = toEntity(dto);
+            if (obra != null) {
+                obras.add(obra);
+            }
         }
 
         return obras;

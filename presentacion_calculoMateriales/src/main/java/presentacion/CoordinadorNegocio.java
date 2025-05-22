@@ -12,6 +12,8 @@ import excepciones.AdmCalculoMaterialesException;
 import excepciones.AdmObraSeleccionadaException;
 import excepciones.PresentacionException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import negocio_dto.CalculoDTO;
 import negocio_dto.ElementoDTO;
 import negocio_dto.MaterialCalculoDTO;
@@ -30,6 +32,8 @@ import negocio_enums.TipoMaterialNegocio;
  * @author Alejandra García Preciado - 252444
  */
 public class CoordinadorNegocio {
+
+    private static final Logger LOGGER = Logger.getLogger(CoordinadorNegocio.class.getName());
 
     /**
      * Instancia única de la clase (patrón Singleton).
@@ -55,8 +59,10 @@ public class CoordinadorNegocio {
      * Constructor privado que inicializa los subsistemas.
      */
     private CoordinadorNegocio() {
+        LOGGER.info("Inicializando CoordinadorNegocio");
         this.admCalculoMateriales = new FAdmCalculoMateriales();
         this.admObraSeleccionada = new FAdmObraSeleccionada();
+        LOGGER.info("CoordinadorNegocio inicializado correctamente");
     }
 
     /**
@@ -80,8 +86,12 @@ public class CoordinadorNegocio {
      */
     public boolean activarSesionObra(String numero) throws PresentacionException {
         try {
-            return admObraSeleccionada.activarSesionObra(numero);
+            LOGGER.info("Activando sesión para obra: " + numero);
+            boolean resultado = admObraSeleccionada.activarSesionObra(numero);
+            LOGGER.info("Sesión activada: " + resultado);
+            return resultado;
         } catch (AdmObraSeleccionadaException ex) {
+            LOGGER.log(Level.SEVERE, "Error al activar sesión de obra", ex);
             throw new PresentacionException("Error al activar sesión de obra: " + ex.getMessage(), ex);
         }
     }
@@ -93,8 +103,11 @@ public class CoordinadorNegocio {
      */
     public void cerrarSesionObra() throws PresentacionException {
         try {
+            LOGGER.info("Cerrando sesión de obra");
             admObraSeleccionada.cerrarSesionObra();
+            LOGGER.info("Sesión cerrada correctamente");
         } catch (AdmObraSeleccionadaException ex) {
+            LOGGER.log(Level.SEVERE, "Error al cerrar sesión de obra", ex);
             throw new PresentacionException("Error al cerrar sesión de obra: " + ex.getMessage(), ex);
         }
     }
@@ -107,8 +120,12 @@ public class CoordinadorNegocio {
      */
     public String obtenerDireccionObraActual() throws PresentacionException {
         try {
-            return admObraSeleccionada.obtenerDireccionObra();
+            LOGGER.info("Obteniendo dirección de obra actual");
+            String direccion = admObraSeleccionada.obtenerDireccionObra();
+            LOGGER.info("Dirección obtenida: " + direccion);
+            return direccion;
         } catch (AdmObraSeleccionadaException ex) {
+            LOGGER.log(Level.SEVERE, "Error al obtener dirección de obra", ex);
             throw new PresentacionException("Error al obtener dirección de obra: " + ex.getMessage(), ex);
         }
     }
@@ -122,9 +139,62 @@ public class CoordinadorNegocio {
      */
     public ObraDTO obtenerObraActual() throws PresentacionException {
         try {
-            return admCalculoMateriales.obtenerObraActual();
+            LOGGER.info("Obteniendo obra actual");
+            ObraDTO obra = admCalculoMateriales.obtenerObraActual();
+            LOGGER.info("Obra obtenida: " + (obra != null ? obra.getDireccion() : "null"));
+            return obra;
         } catch (AdmCalculoMaterialesException ex) {
+            LOGGER.log(Level.SEVERE, "Error al obtener obra actual", ex);
             throw new PresentacionException("Error al obtener obra actual: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Obtiene el historial de cálculos para la obra actualmente en sesión.
+     *
+     * @return Lista de cálculos que conforman el historial
+     * @throws PresentacionException Si ocurre un error durante la consulta
+     */
+    public List<CalculoDTO> obtenerHistorialCalculos() throws PresentacionException {
+        try {
+            LOGGER.info("Obteniendo historial de cálculos");
+
+            // Verificar que hay una sesión activa
+            String idObra = admObraSeleccionada.obtenerSesion();
+            LOGGER.info("ID de obra en sesión: " + idObra);
+
+            if (idObra == null || idObra.isEmpty()) {
+                LOGGER.warning("No hay una obra en sesión activa");
+                throw new PresentacionException("No hay una obra seleccionada actualmente");
+            }
+
+            List<CalculoDTO> historial = admCalculoMateriales.obtenerHistorialCalculos();
+
+            if (historial == null) {
+                LOGGER.warning("El historial devuelto es null, creando lista vacía");
+                historial = new java.util.ArrayList<>();
+            }
+
+            LOGGER.info("Historial obtenido con " + historial.size() + " elementos");
+
+            // Log detallado de cada cálculo por unos problemitas
+            for (int i = 0; i < historial.size(); i++) {
+                CalculoDTO calculo = historial.get(i);
+                LOGGER.info("Cálculo " + i + ": "
+                        + (calculo != null
+                                ? "Obra=" + (calculo.getObra() != null ? calculo.getObra().getDireccion() : "null")
+                                + ", Fecha=" + (calculo.getFecha() != null ? calculo.getFecha().toString() : "null")
+                                + ", Elemento=" + (calculo.getElemento() != null ? calculo.getElemento().getTipo() : "null")
+                                : "null"));
+            }
+
+            return historial;
+        } catch (AdmCalculoMaterialesException ex) {
+            LOGGER.log(Level.SEVERE, "Error al obtener historial de cálculos", ex);
+            throw new PresentacionException("Error al obtener historial de cálculos: " + ex.getMessage(), ex);
+        } catch (AdmObraSeleccionadaException ex) {
+            LOGGER.log(Level.SEVERE, "Error al verificar sesión de obra", ex);
+            throw new PresentacionException("Error al verificar sesión de obra: " + ex.getMessage(), ex);
         }
     }
 
@@ -138,8 +208,12 @@ public class CoordinadorNegocio {
      */
     public CalculoDTO calcularMateriales(ElementoDTO elemento) throws PresentacionException {
         try {
-            return admCalculoMateriales.calcularMateriales(elemento);
+            LOGGER.info("Calculando materiales para elemento: " + (elemento != null ? elemento.getTipo() : "null"));
+            CalculoDTO resultado = admCalculoMateriales.calcularMateriales(elemento);
+            LOGGER.info("Cálculo completado exitosamente");
+            return resultado;
         } catch (AdmCalculoMaterialesException ex) {
+            LOGGER.log(Level.SEVERE, "Error al calcular materiales", ex);
             throw new PresentacionException("Error al calcular materiales: " + ex.getMessage(), ex);
         }
     }
@@ -153,8 +227,12 @@ public class CoordinadorNegocio {
      */
     public CalculoDTO guardarCalculo(CalculoDTO calculo) throws PresentacionException {
         try {
-            return admCalculoMateriales.guardarCalculo(calculo);
+            LOGGER.info("Guardando cálculo");
+            CalculoDTO resultado = admCalculoMateriales.guardarCalculo(calculo);
+            LOGGER.info("Cálculo guardado exitosamente");
+            return resultado;
         } catch (AdmCalculoMaterialesException ex) {
+            LOGGER.log(Level.SEVERE, "Error al guardar cálculo", ex);
             throw new PresentacionException("Error al guardar cálculo: " + ex.getMessage(), ex);
         }
     }
@@ -168,8 +246,12 @@ public class CoordinadorNegocio {
      */
     public byte[] descargarPDF(String idCalculo) throws PresentacionException {
         try {
-            return admCalculoMateriales.descargarPDF(idCalculo);
+            LOGGER.info("Descargando PDF para cálculo: " + idCalculo);
+            byte[] resultado = admCalculoMateriales.descargarPDF(idCalculo);
+            LOGGER.info("PDF generado exitosamente");
+            return resultado;
         } catch (AdmCalculoMaterialesException ex) {
+            LOGGER.log(Level.SEVERE, "Error al descargar PDF", ex);
             throw new PresentacionException("Error al descargar PDF: " + ex.getMessage(), ex);
         }
     }
@@ -183,8 +265,12 @@ public class CoordinadorNegocio {
      */
     public List<MaterialCalculoDTO> obtenerMateriales(TipoMaterialNegocio tipo) throws PresentacionException {
         try {
-            return admCalculoMateriales.obtenerMateriales(tipo);
+            LOGGER.info("Obteniendo materiales de tipo: " + tipo);
+            List<MaterialCalculoDTO> materiales = admCalculoMateriales.obtenerMateriales(tipo);
+            LOGGER.info("Materiales obtenidos: " + (materiales != null ? materiales.size() : 0));
+            return materiales;
         } catch (AdmCalculoMaterialesException ex) {
+            LOGGER.log(Level.SEVERE, "Error al obtener materiales", ex);
             throw new PresentacionException("Error al obtener materiales: " + ex.getMessage(), ex);
         }
     }
@@ -198,23 +284,13 @@ public class CoordinadorNegocio {
      */
     public ElementoDTO obtenerElemento(TipoElementoNegocio tipo) throws PresentacionException {
         try {
-            return admCalculoMateriales.obtenerElemento(tipo);
+            LOGGER.info("Obteniendo elemento de tipo: " + tipo);
+            ElementoDTO elemento = admCalculoMateriales.obtenerElemento(tipo);
+            LOGGER.info("Elemento obtenido: " + (elemento != null ? elemento.getTipo() : "null"));
+            return elemento;
         } catch (AdmCalculoMaterialesException ex) {
+            LOGGER.log(Level.SEVERE, "Error al obtener elemento", ex);
             throw new PresentacionException("Error al obtener elemento: " + ex.getMessage(), ex);
-        }
-    }
-
-    /**
-     * Obtiene el historial de cálculos para la obra actualmente en sesión.
-     *
-     * @return Lista de cálculos que conforman el historial
-     * @throws PresentacionException Si ocurre un error durante la consulta
-     */
-    public List<CalculoDTO> obtenerHistorialCalculos() throws PresentacionException {
-        try {
-            return admCalculoMateriales.obtenerHistorialCalculos();
-        } catch (AdmCalculoMaterialesException ex) {
-            throw new PresentacionException("Error al obtener historial de cálculos: " + ex.getMessage(), ex);
         }
     }
 
@@ -227,8 +303,12 @@ public class CoordinadorNegocio {
      */
     public boolean validarDimensionesElemento(ElementoDTO elemento) throws PresentacionException {
         try {
-            return admCalculoMateriales.validarDimensionesElemento(elemento);
+            LOGGER.info("Validando dimensiones de elemento");
+            boolean valido = admCalculoMateriales.validarDimensionesElemento(elemento);
+            LOGGER.info("Dimensiones válidas: " + valido);
+            return valido;
         } catch (AdmCalculoMaterialesException ex) {
+            LOGGER.log(Level.SEVERE, "Error al validar dimensiones", ex);
             throw new PresentacionException("Error al validar dimensiones: " + ex.getMessage(), ex);
         }
     }
@@ -243,8 +323,12 @@ public class CoordinadorNegocio {
      */
     public Double calcularVolumen(ElementoDTO elemento) throws PresentacionException {
         try {
-            return admCalculoMateriales.calcularVolumen(elemento);
+            LOGGER.info("Calculando volumen de elemento");
+            Double volumen = admCalculoMateriales.calcularVolumen(elemento);
+            LOGGER.info("Volumen calculado: " + volumen);
+            return volumen;
         } catch (AdmCalculoMaterialesException ex) {
+            LOGGER.log(Level.SEVERE, "Error al calcular volumen", ex);
             throw new PresentacionException("Error al calcular volumen: " + ex.getMessage(), ex);
         }
     }
@@ -258,8 +342,12 @@ public class CoordinadorNegocio {
      */
     public CalculoDTO generarReporteCalculo(ElementoDTO elemento) throws PresentacionException {
         try {
-            return admCalculoMateriales.generarReporteCalculo(elemento);
+            LOGGER.info("Generando reporte de cálculo");
+            CalculoDTO reporte = admCalculoMateriales.generarReporteCalculo(elemento);
+            LOGGER.info("Reporte generado exitosamente");
+            return reporte;
         } catch (AdmCalculoMaterialesException ex) {
+            LOGGER.log(Level.SEVERE, "Error al generar reporte", ex);
             throw new PresentacionException("Error al generar reporte: " + ex.getMessage(), ex);
         }
     }
@@ -272,8 +360,11 @@ public class CoordinadorNegocio {
      */
     public void validarDireccionObra(String direccionIngresada) throws PresentacionException {
         try {
+            LOGGER.info("Validando dirección de obra: " + direccionIngresada);
             admCalculoMateriales.validarDireccionObra(direccionIngresada);
+            LOGGER.info("Dirección validada exitosamente");
         } catch (AdmCalculoMaterialesException ex) {
+            LOGGER.log(Level.WARNING, "Error al validar dirección", ex);
             throw new PresentacionException("Error al validar dirección: " + ex.getMessage(), ex);
         }
     }
@@ -284,6 +375,7 @@ public class CoordinadorNegocio {
      * @param elemento Elemento a establecer
      */
     public void setElementoActual(ElementoDTO elemento) {
+        LOGGER.info("Estableciendo elemento actual: " + (elemento != null ? elemento.getTipo() : "null"));
         this.elementoActual = elemento;
     }
 
@@ -293,6 +385,7 @@ public class CoordinadorNegocio {
      * @return Elemento actual
      */
     public ElementoDTO getElementoActual() {
+        LOGGER.info("Obteniendo elemento actual: " + (elementoActual != null ? elementoActual.getTipo() : "null"));
         return this.elementoActual;
     }
 
@@ -301,6 +394,7 @@ public class CoordinadorNegocio {
      * cálculo.
      */
     public void limpiarElementoActual() {
+        LOGGER.info("Limpiando elemento actual");
         this.elementoActual = null;
     }
 
@@ -310,7 +404,8 @@ public class CoordinadorNegocio {
      * asegurar que no hay datos residuales de cálculos anteriores.
      */
     public void iniciarNuevaSesionCalculo() {
+        LOGGER.info("Iniciando nueva sesión de cálculo");
         limpiarElementoActual();
     }
-    
+
 }
