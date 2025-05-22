@@ -305,9 +305,7 @@ public class InicioCalculosForm extends javax.swing.JFrame {
                 Utilities.mostrarMensajeError("Cálculo no disponible");
                 return;
             }
-
-            // Establecer el elemento del cálculo consultado
-            coordinadorNegocio.setElementoActual(calculo.getElemento());
+            coordinadorNegocio.prepararConsultaHistorial(calculo);
 
             // Determinar qué pantalla abrir según el tipo de elemento
             if (calculo.getElemento() != null && calculo.getElemento().getTipo() != null) {

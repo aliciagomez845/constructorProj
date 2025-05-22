@@ -6,6 +6,7 @@ package presentacion;
 
 import admCalculoMateriales.FAdmCalculoMateriales;
 import admCalculoMateriales.IAdmCalculoMateriales;
+import admCalculoMateriales.PDFGenerator;
 import admObraSeleccionada.FAdmObraSeleccionada;
 import admObraSeleccionada.IAdmObraSeleccionada;
 import excepciones.AdmCalculoMaterialesException;
@@ -56,12 +57,23 @@ public class CoordinadorNegocio {
     private ElementoDTO elementoActual;
 
     /**
+     * Variable para almacenar el cálculo actual (para consultas de historial).
+     */
+    private CalculoDTO calculoActual;
+
+    /**
+     * Flag para indicar si estamos en modo consulta de historial.
+     */
+    private boolean modoConsultaHistorial;
+
+    /**
      * Constructor privado que inicializa los subsistemas.
      */
     private CoordinadorNegocio() {
         LOGGER.info("Inicializando CoordinadorNegocio");
         this.admCalculoMateriales = new FAdmCalculoMateriales();
         this.admObraSeleccionada = new FAdmObraSeleccionada();
+        this.modoConsultaHistorial = false;
         LOGGER.info("CoordinadorNegocio inicializado correctamente");
     }
 
@@ -244,15 +256,39 @@ public class CoordinadorNegocio {
      * @return Arreglo de bytes que representa el PDF
      * @throws PresentacionException Si ocurre un error durante la generación
      */
-    public byte[] descargarPDF(String idCalculo) throws PresentacionException {
+    public byte[] generarPDFDirecto(CalculoDTO calculo) throws PresentacionException {
         try {
-            LOGGER.info("Descargando PDF para cálculo: " + idCalculo);
-            byte[] resultado = admCalculoMateriales.descargarPDF(idCalculo);
-            LOGGER.info("PDF generado exitosamente");
-            return resultado;
+            LOGGER.info("Generando PDF directo para cálculo");
+
+            // Validar que el cálculo tenga la información necesaria
+            if (calculo == null) {
+                throw new PresentacionException("El cálculo no puede ser nulo");
+            }
+
+            if (calculo.getObra() == null || calculo.getObra().getDireccion() == null) {
+                throw new PresentacionException("El cálculo debe tener una obra asociada con dirección");
+            }
+
+            if (calculo.getElemento() == null) {
+                throw new PresentacionException("El cálculo debe tener un elemento asociado");
+            }
+
+            if (calculo.getMaterialesCalculados() == null || calculo.getMaterialesCalculados().isEmpty()) {
+                throw new PresentacionException("El cálculo debe tener materiales calculados");
+            }
+
+            // Usar la clase PDFGenerator directamente
+            byte[] pdfBytes = PDFGenerator.generarReportePDF(calculo);
+
+            LOGGER.info("PDF directo generado exitosamente. Tamaño: " + pdfBytes.length + " bytes");
+            return pdfBytes;
+
         } catch (AdmCalculoMaterialesException ex) {
-            LOGGER.log(Level.SEVERE, "Error al descargar PDF", ex);
-            throw new PresentacionException("Error al descargar PDF: " + ex.getMessage(), ex);
+            LOGGER.log(Level.SEVERE, "Error del subsistema al generar PDF directo", ex);
+            throw new PresentacionException("Error al generar PDF: " + ex.getMessage(), ex);
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error inesperado al generar PDF directo", ex);
+            throw new PresentacionException("Error inesperado al generar PDF: " + ex.getMessage(), ex);
         }
     }
 
@@ -406,6 +442,71 @@ public class CoordinadorNegocio {
     public void iniciarNuevaSesionCalculo() {
         LOGGER.info("Iniciando nueva sesión de cálculo");
         limpiarElementoActual();
+        limpiarCalculoActual();
+        setModoConsultaHistorial(false);
+    }
+
+    // ==================== NUEVOS MÉTODOS PARA MANEJO DE HISTORIAL ====================
+    /**
+     * Establece el cálculo actual (usado para consultas de historial).
+     *
+     * @param calculo Cálculo a establecer
+     */
+    public void setCalculoActual(CalculoDTO calculo) {
+        LOGGER.info("Estableciendo cálculo actual para consulta: "
+                + (calculo != null && calculo.getElemento() != null ? calculo.getElemento().getTipo() : "null"));
+        this.calculoActual = calculo;
+    }
+
+    /**
+     * Obtiene el cálculo actual (usado para consultas de historial).
+     *
+     * @return Cálculo actual
+     */
+    public CalculoDTO getCalculoActual() {
+        LOGGER.info("Obteniendo cálculo actual: "
+                + (calculoActual != null && calculoActual.getElemento() != null ? calculoActual.getElemento().getTipo() : "null"));
+        return this.calculoActual;
+    }
+
+    /**
+     * Limpia el cálculo actual.
+     */
+    public void limpiarCalculoActual() {
+        LOGGER.info("Limpiando cálculo actual");
+        this.calculoActual = null;
+    }
+
+    /**
+     * Establece el modo de consulta de historial.
+     *
+     * @param modoConsultaHistorial true si estamos consultando historial, false
+     * para nuevo cálculo
+     */
+    public void setModoConsultaHistorial(boolean modoConsultaHistorial) {
+        LOGGER.info("Estableciendo modo consulta historial: " + modoConsultaHistorial);
+        this.modoConsultaHistorial = modoConsultaHistorial;
+    }
+
+    /**
+     * Verifica si estamos en modo consulta de historial.
+     *
+     * @return true si estamos consultando historial, false si es nuevo cálculo
+     */
+    public boolean isModoConsultaHistorial() {
+        return this.modoConsultaHistorial;
+    }
+
+    /**
+     * Prepara una consulta de historial estableciendo el cálculo y el modo.
+     *
+     * @param calculo Cálculo del historial a consultar
+     */
+    public void prepararConsultaHistorial(CalculoDTO calculo) {
+        LOGGER.info("Preparando consulta de historial");
+        setCalculoActual(calculo);
+        setElementoActual(calculo.getElemento());
+        setModoConsultaHistorial(true);
     }
 
 }

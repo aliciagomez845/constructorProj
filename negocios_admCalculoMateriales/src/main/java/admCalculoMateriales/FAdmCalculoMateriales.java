@@ -100,14 +100,14 @@ public class FAdmCalculoMateriales implements IAdmCalculoMateriales {
     /**
      * Genera y descarga un reporte en formato PDF de un cálculo específico.
      *
-     * @param idCalculo Identificador único del cálculo
+     * @param calculo Cálculo
      * @return Arreglo de bytes que representa el PDF generado
      * @throws AdmCalculoMaterialesException Si ocurre un error durante la
      * generación del PDF
      */
     @Override
-    public byte[] descargarPDF(String idCalculo) throws AdmCalculoMaterialesException {
-        return controlAdmCalculoMateriales.descargarPDF(idCalculo);
+    public byte[] generarPDFDirecto(CalculoDTO calculo) throws AdmCalculoMaterialesException {
+        return controlAdmCalculoMateriales.generarPDFDirecto(calculo);
     }
 
     /**

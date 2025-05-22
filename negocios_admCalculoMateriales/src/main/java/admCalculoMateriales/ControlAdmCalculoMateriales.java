@@ -161,23 +161,35 @@ public class ControlAdmCalculoMateriales {
     /**
      * Genera y descarga un reporte en formato PDF de un cálculo específico.
      *
-     * @param idCalculo Identificador único del cálculo
+     * @param calculo Identificador único del cálculo
      * @return Arreglo de bytes que representa el PDF generado
      * @throws AdmCalculoMaterialesException Si ocurre un error durante la
      * generación del PDF
      */
-    public byte[] descargarPDF(String idCalculo) throws AdmCalculoMaterialesException {
+    public byte[] generarPDFDirecto(CalculoDTO calculo) throws AdmCalculoMaterialesException {
         try {
-            // Buscar el cálculo por ID
-            CalculoDTO calculo = calculoBO.buscarPorId(idCalculo);
+            // Validar que el cálculo tenga la información necesaria
             if (calculo == null) {
-                throw new AdmCalculoMaterialesException("No se encontró el cálculo con ID: " + idCalculo);
+                throw new AdmCalculoMaterialesException("El cálculo no puede ser nulo");
             }
 
-            // Generar el PDF 
-            return generarPDF(calculo);
-        } catch (NegocioException ex) {
-            throw new AdmCalculoMaterialesException("Error al generar el PDF del cálculo: " + ex.getMessage(), ex);
+            if (calculo.getObra() == null || calculo.getObra().getDireccion() == null) {
+                throw new AdmCalculoMaterialesException("El cálculo debe tener una obra asociada con dirección");
+            }
+
+            if (calculo.getElemento() == null) {
+                throw new AdmCalculoMaterialesException("El cálculo debe tener un elemento asociado");
+            }
+
+            if (calculo.getMaterialesCalculados() == null || calculo.getMaterialesCalculados().isEmpty()) {
+                throw new AdmCalculoMaterialesException("El cálculo debe tener materiales calculados");
+            }
+
+            // Generar el PDF usando PDFGenerator
+            return PDFGenerator.generarReportePDF(calculo);
+
+        } catch (Exception ex) {
+            throw new AdmCalculoMaterialesException("Error al generar PDF directo: " + ex.getMessage(), ex);
         }
     }
 
@@ -278,26 +290,33 @@ public class ControlAdmCalculoMateriales {
      * @param calculo Cálculo del que se generará el PDF
      * @return Arreglo de bytes que representa el PDF generado
      */
-    private byte[] generarPDF(CalculoDTO calculo) {
-        // Esta es una implementación simulada.
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
+    private byte[] generarPDF(CalculoDTO calculo) throws Exception {
         try {
-            // Aquí iría la lógica para generar el PDF
-            // Por ejemplo usando iText:
-            // Document document = new Document();
-            // PdfWriter.getInstance(document, outputStream);
-            // document.open();
-            // document.add(new Paragraph("Reporte de Cálculo de Materiales"));
-            // ... agregar contenido del cálculo ...
-            // document.close();
+            // Validar que el cálculo tenga la información necesaria
+            if (calculo == null) {
+                throw new Exception("El cálculo no puede ser nulo");
+            }
 
-            // Por ahora, devolvemos un array de bytes simulado
-            String contenidoPDF = "Reporte de Cálculo - Obra: " + calculo.getObra().getDireccion()
-                    + " - Elemento: " + calculo.getElemento().getTipo();
-            return contenidoPDF.getBytes();
-        } catch (Exception e) {
-            return new byte[0];
+            if (calculo.getObra() == null || calculo.getObra().getDireccion() == null) {
+                throw new Exception("El cálculo debe tener una obra asociada con dirección");
+            }
+
+            if (calculo.getElemento() == null) {
+                throw new Exception("El cálculo debe tener un elemento asociado");
+            }
+
+            if (calculo.getMaterialesCalculados() == null || calculo.getMaterialesCalculados().isEmpty()) {
+                throw new Exception("El cálculo debe tener materiales calculados");
+            }
+
+            // Generar el PDF usando la clase PDFGenerator
+            return PDFGenerator.generarReportePDF(calculo);
+
+        } catch (Exception ex) {
+            // Log del error para debugging
+            System.err.println("Error al generar PDF: " + ex.getMessage());
+            ex.printStackTrace();
+            throw new Exception("Error al generar el reporte PDF: " + ex.getMessage());
         }
     }
 

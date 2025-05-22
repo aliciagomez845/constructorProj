@@ -47,14 +47,13 @@ public interface IAdmCalculoMateriales {
     CalculoDTO guardarCalculo(CalculoDTO calculo) throws AdmCalculoMaterialesException;
 
     /**
-     * Genera y descarga un reporte en formato PDF de un cálculo específico.
+     * Genera un PDF directamente a partir de un objeto CalculoDTO.Agregar este método a IAdmCalculoMateriales:
      *
-     * @param idCalculo Identificador único del cálculo
-     * @return Arreglo de bytes que representa el PDF generado
-     * @throws AdmCalculoMaterialesException Si ocurre un error durante la
-     * generación del PDF
+     * @param calculo
+     * @return 
+     * @throws AdmCalculoMaterialesException
      */
-    byte[] descargarPDF(String idCalculo) throws AdmCalculoMaterialesException;
+    byte[] generarPDFDirecto(CalculoDTO calculo) throws AdmCalculoMaterialesException;
 
     /**
      * Obtiene los materiales disponibles de un tipo específico.

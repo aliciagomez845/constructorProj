@@ -5,6 +5,8 @@
 package presentacion;
 
 import excepciones.PresentacionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import negocio_dto.CalculoDTO;
 import negocio_dto.ElementoDTO;
 import negocio_dto.MaterialCalculoDTO;
@@ -18,6 +20,8 @@ import utilities.Utilities;
  * @author Alejandra García Preciado - 252444
  */
 public class CalculoMaterialesNivelacionForm extends javax.swing.JFrame {
+
+    private static final Logger LOGGER = Logger.getLogger(CalculoMaterialesConcretoForm.class.getName());
 
     /**
      * Referencia al coordinador de aplicación. Permite la navegación entre los
@@ -57,42 +61,84 @@ public class CalculoMaterialesNivelacionForm extends javax.swing.JFrame {
      */
     private void cargarResultadosCalculo() {
         try {
-            // Obtener el elemento actual del coordinador
-            ElementoDTO elemento = coordinadorNegocio.getElementoActual();
+            // Verificar si estamos en modo consulta de historial
+            if (coordinadorNegocio.isModoConsultaHistorial()) {
+                // MODO CONSULTA: Usar el cálculo existente del historial
+                LOGGER.info("Modo consulta de historial - usando cálculo existente");
 
-            if (elemento == null) {
-                Utilities.mostrarMensajeError("No se ha encontrado el elemento para realizar el cálculo.");
-                this.dispose();
-                coordinador.mostrarSeleccionDatos();
-                return;
+                this.calculoActual = coordinadorNegocio.getCalculoActual();
+
+                if (calculoActual == null) {
+                    Utilities.mostrarMensajeError("No se ha encontrado el cálculo en el historial.");
+                    this.dispose();
+                    coordinador.mostrarInicioCalculos();
+                    return;
+                }
+
+                // Mostrar los datos del cálculo existente sin generar ni guardar nada nuevo
+                mostrarDatosCalculo(calculoActual);
+
+            } else {
+                // MODO NUEVO CÁLCULO: Generar y guardar nuevo cálculo
+                LOGGER.info("Modo nuevo cálculo - generando cálculo");
+
+                // Obtener el elemento actual del coordinador
+                ElementoDTO elemento = coordinadorNegocio.getElementoActual();
+
+                if (elemento == null) {
+                    Utilities.mostrarMensajeError("No se ha encontrado el elemento para realizar el cálculo.");
+                    this.dispose();
+                    coordinador.mostrarSeleccionDatos();
+                    return;
+                }
+
+                // Generar el reporte de cálculo
+                this.calculoActual = coordinadorNegocio.generarReporteCalculo(elemento);
+
+                if (calculoActual == null) {
+                    Utilities.mostrarMensajeError("Error al generar el cálculo de materiales.");
+                    this.dispose();
+                    coordinador.mostrarSeleccionDatos();
+                    return;
+                }
+
+                // Guardar el cálculo solo si es nuevo
+                try {
+                    this.calculoActual = coordinadorNegocio.guardarCalculo(calculoActual);
+                    LOGGER.info("Cálculo guardado exitosamente en la base de datos");
+                } catch (PresentacionException ex) {
+                    // Si falla el guardado, mostrar advertencia pero continuar mostrando los resultados
+                    Utilities.mostrarMensajeAdvertencia("El cálculo se generó correctamente, pero no se pudo guardar en el historial: " + ex.getMessage());
+                    LOGGER.severe("Error al guardar cálculo: " + ex.getMessage());
+                }
+
+                // Mostrar los datos del nuevo cálculo
+                mostrarDatosCalculo(calculoActual);
             }
 
-            // Generar el reporte de cálculo
-            this.calculoActual = coordinadorNegocio.generarReporteCalculo(elemento);
+        } catch (PresentacionException ex) {
+            Utilities.mostrarMensajeError("Error al cargar los resultados: " + ex.getMessage());
+            this.dispose();
+            coordinador.mostrarSeleccionDatos();
+        }
+    }
 
-            if (calculoActual == null) {
-                Utilities.mostrarMensajeError("Error al generar el cálculo de materiales.");
-                this.dispose();
-                coordinador.mostrarSeleccionDatos();
-                return;
-            }
-
-            // Guardar el cálculo 
-            try {
-                this.calculoActual = coordinadorNegocio.guardarCalculo(calculoActual);
-                System.out.println("Cálculo guardado exitosamente en la base de datos");
-            } catch (PresentacionException ex) {
-                // Si falla el guardado, mostrar advertencia pero continuar mostrando los resultados
-                Utilities.mostrarMensajeAdvertencia("El cálculo se generó correctamente, pero no se pudo guardar en el historial: " + ex.getMessage());
-                System.err.println("Error al guardar cálculo: " + ex.getMessage());
-            }
+    /**
+     * Método auxiliar para mostrar los datos de un cálculo en la interfaz.
+     * Centraliza la lógica de mostrar datos para evitar duplicación de código.
+     *
+     * @param calculo Cálculo cuyos datos se mostrarán
+     */
+    private void mostrarDatosCalculo(CalculoDTO calculo) {
+        try {
+            ElementoDTO elemento = calculo.getElemento();
 
             // Mostrar la información del cálculo
             campoTipoElemento.setText(elemento.getTipo().toString().replace("_", " "));
-            campoVolumenElemento.setText(Utilities.formatearDecimal(calculoActual.getVolumenCalculado()) + " m³");
+            campoVolumenElemento.setText(Utilities.formatearDecimal(calculo.getVolumenCalculado()) + " m³");
 
             // Mostrar las cantidades de materiales calculados
-            for (MaterialCalculoDTO material : calculoActual.getMaterialesCalculados()) {
+            for (MaterialCalculoDTO material : calculo.getMaterialesCalculados()) {
                 switch (material.getTipo()) {
                     case CEMENTO:
                         campoCementoRequerido.setText(Utilities.formatearDecimal(material.getCantidadCalculada()) + " kg");
@@ -108,7 +154,7 @@ public class CalculoMaterialesNivelacionForm extends javax.swing.JFrame {
 
             // Si la cantidad de agua no se ha calculado, estimarla basada en el cemento
             if (campoAgua.getText().isEmpty()) {
-                for (MaterialCalculoDTO material : calculoActual.getMaterialesCalculados()) {
+                for (MaterialCalculoDTO material : calculo.getMaterialesCalculados()) {
                     if (material.getTipo() == TipoMaterialNegocio.CEMENTO) {
                         double agua = material.getCantidadCalculada() * 0.5; // Relación agua/cemento de 0.5
                         campoAgua.setText(Utilities.formatearDecimal(agua) + " litros");
@@ -117,10 +163,11 @@ public class CalculoMaterialesNivelacionForm extends javax.swing.JFrame {
                 }
             }
 
-        } catch (PresentacionException ex) {
-            Utilities.mostrarMensajeError("Error al cargar los resultados: " + ex.getMessage());
-            this.dispose();
-            coordinador.mostrarSeleccionDatos();
+            LOGGER.info("Datos del cálculo mostrados correctamente en la interfaz");
+
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error al mostrar datos del cálculo", ex);
+            Utilities.mostrarMensajeError("Error al mostrar los datos del cálculo: " + ex.getMessage());
         }
     }
 
@@ -424,20 +471,41 @@ public class CalculoMaterialesNivelacionForm extends javax.swing.JFrame {
                 return;
             }
 
-            // El método descargarPDF requiere el ID del cálculo guardado
-            // Por eso es importante que el cálculo se haya guardado previamente
-            if (calculoActual.getObra() == null || calculoActual.getObra().getId() == null) {
-                Utilities.mostrarMensajeError("El cálculo debe estar guardado para poder generar el PDF.");
+            // Verificar que el cálculo tenga la información mínima necesaria
+            if (calculoActual.getObra() == null || calculoActual.getObra().getDireccion() == null) {
+                Utilities.mostrarMensajeError("El cálculo debe tener una obra asociada para generar el PDF.");
                 return;
             }
 
-            // Intentar generar y descargar el PDF
-            byte[] pdfBytes = coordinadorNegocio.descargarPDF(calculoActual.getObra().getId());
+            if (calculoActual.getElemento() == null) {
+                Utilities.mostrarMensajeError("El cálculo debe tener un elemento asociado para generar el PDF.");
+                return;
+            }
+
+            if (calculoActual.getMaterialesCalculados() == null || calculoActual.getMaterialesCalculados().isEmpty()) {
+                Utilities.mostrarMensajeError("El cálculo debe tener materiales calculados para generar el PDF.");
+                return;
+            }
+
+            // Mostrar mensaje de progreso
+            Utilities.mostrarMensajeInfo("Generando PDF, por favor espere...");
+
+            // Generar el PDF usando el coordinador de negocio
+            // Nota: Aquí usamos el coordinador para generar el PDF directamente del cálculo actual
+            byte[] pdfBytes = coordinadorNegocio.generarPDFDirecto(calculoActual);
 
             if (pdfBytes != null && pdfBytes.length > 0) {
-                Utilities.mostrarMensajeInfo("PDF generado exitosamente.");
-                // Aquí se implementaría la lógica para guardar el archivo en el sistema
-                // Por ejemplo, abrir un JFileChooser para que el usuario elija dónde guardarlo
+                // Generar nombre sugerido para el archivo
+                String nombreSugerido = utilities.PDFUtilities.generarNombreEspecifico(
+                        calculoActual.getElemento().getTipo().toString()
+                );
+
+                // Permitir al usuario guardar el PDF
+                boolean guardado = utilities.PDFUtilities.guardarPDF(this, pdfBytes, nombreSugerido);
+
+                if (guardado) {
+                    System.out.println("PDF descargado exitosamente");
+                }
             } else {
                 Utilities.mostrarMensajeAdvertencia("No se pudo generar el PDF. El archivo está vacío.");
             }
@@ -445,9 +513,11 @@ public class CalculoMaterialesNivelacionForm extends javax.swing.JFrame {
         } catch (PresentacionException ex) {
             Utilities.mostrarMensajeError("Error al generar el PDF: " + ex.getMessage());
             System.err.println("Error en descarga de PDF: " + ex.getMessage());
+            ex.printStackTrace();
         } catch (Exception ex) {
             Utilities.mostrarMensajeError("Error inesperado al descargar el PDF: " + ex.getMessage());
             System.err.println("Error inesperado: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }//GEN-LAST:event_btnDescargarPDFActionPerformed
 
