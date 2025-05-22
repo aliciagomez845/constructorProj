@@ -77,6 +77,16 @@ public class CalculoMaterialesNivelacionForm extends javax.swing.JFrame {
                 return;
             }
 
+            // Guardar el cálculo 
+            try {
+                this.calculoActual = coordinadorNegocio.guardarCalculo(calculoActual);
+                System.out.println("Cálculo guardado exitosamente en la base de datos");
+            } catch (PresentacionException ex) {
+                // Si falla el guardado, mostrar advertencia pero continuar mostrando los resultados
+                Utilities.mostrarMensajeAdvertencia("El cálculo se generó correctamente, pero no se pudo guardar en el historial: " + ex.getMessage());
+                System.err.println("Error al guardar cálculo: " + ex.getMessage());
+            }
+
             // Mostrar la información del cálculo
             campoTipoElemento.setText(elemento.getTipo().toString().replace("_", " "));
             campoVolumenElemento.setText(Utilities.formatearDecimal(calculoActual.getVolumenCalculado()) + " m³");
@@ -399,7 +409,38 @@ public class CalculoMaterialesNivelacionForm extends javax.swing.JFrame {
     }//GEN-LAST:event_btnVolverActionPerformed
 
     private void btnDescargarPDFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDescargarPDFActionPerformed
-        // TODO add your handling code here:
+        try {
+            // Verificar que el cálculo esté disponible
+            if (calculoActual == null) {
+                Utilities.mostrarMensajeError("No hay un cálculo disponible para descargar.");
+                return;
+            }
+
+            // El método descargarPDF requiere el ID del cálculo guardado
+            // Por eso es importante que el cálculo se haya guardado previamente
+            if (calculoActual.getObra() == null || calculoActual.getObra().getId() == null) {
+                Utilities.mostrarMensajeError("El cálculo debe estar guardado para poder generar el PDF.");
+                return;
+            }
+
+            // Intentar generar y descargar el PDF
+            byte[] pdfBytes = coordinadorNegocio.descargarPDF(calculoActual.getObra().getId());
+
+            if (pdfBytes != null && pdfBytes.length > 0) {
+                Utilities.mostrarMensajeInfo("PDF generado exitosamente.");
+                // Aquí se implementaría la lógica para guardar el archivo en el sistema
+                // Por ejemplo, abrir un JFileChooser para que el usuario elija dónde guardarlo
+            } else {
+                Utilities.mostrarMensajeAdvertencia("No se pudo generar el PDF. El archivo está vacío.");
+            }
+
+        } catch (PresentacionException ex) {
+            Utilities.mostrarMensajeError("Error al generar el PDF: " + ex.getMessage());
+            System.err.println("Error en descarga de PDF: " + ex.getMessage());
+        } catch (Exception ex) {
+            Utilities.mostrarMensajeError("Error inesperado al descargar el PDF: " + ex.getMessage());
+            System.err.println("Error inesperado: " + ex.getMessage());
+        }
     }//GEN-LAST:event_btnDescargarPDFActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
