@@ -56,11 +56,25 @@ public class InicioCalculosForm extends javax.swing.JFrame {
         // Centrar la ventana
         this.setLocationRelativeTo(null);
 
+        // Limpiar formulario al inicializar
+        limpiarFormulario();
+
         // Configurar la tabla con el botón "Consultar"
         configurarTablaHistorial();
 
         // Cargar el historial de cálculos
         cargarHistorialCalculos();
+    }
+
+    /**
+     * Limpia el formulario al estado inicial.
+     */
+    private void limpiarFormulario() {
+        // Limpiar campo de búsqueda
+        Utilities.limpiarCampos(campoDireccion);
+
+        // Limpiar cualquier elemento actual almacenado
+        coordinadorNegocio.limpiarElementoActual();
     }
 
     /**
@@ -174,6 +188,9 @@ public class InicioCalculosForm extends javax.swing.JFrame {
         }
 
         CalculoDTO calculo = listaCalculos.get(indice);
+
+        // Establecer el elemento del cálculo consultado
+        coordinadorNegocio.setElementoActual(calculo.getElemento());
 
         // Determinar qué pantalla abrir según el tipo de elemento
         switch (calculo.getElemento().getTipo()) {
@@ -320,12 +337,16 @@ public class InicioCalculosForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevoCalculoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoCalculoActionPerformed
+        // Limpiar cualquier elemento previo antes de iniciar nuevo cálculo
+        coordinadorNegocio.iniciarNuevaSesionCalculo();
         this.dispose();
         coordinador.mostrarSeleccionDatos();
     }//GEN-LAST:event_btnNuevoCalculoActionPerformed
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
         if (Utilities.mostrarConfirmacion("¿Desea salir de la aplicación?")) {
+            // Limpiar datos antes de salir
+            coordinadorNegocio.limpiarElementoActual();
             this.dispose();
             System.exit(0);
         }

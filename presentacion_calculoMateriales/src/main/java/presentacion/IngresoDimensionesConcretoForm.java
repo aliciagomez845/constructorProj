@@ -45,6 +45,28 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
 
         // Inicialmente deshabilitar todos los campos de dimensiones
         deshabilitarTodosCampos();
+
+        // Limpiar el formulario al inicializar
+        limpiarFormulario();
+    }
+
+    /**
+     * Limpia todos los campos del formulario y restablece el estado inicial.
+     */
+    private void limpiarFormulario() {
+        // Limpiar todos los campos de texto
+        Utilities.limpiarCampos(
+                campoAltoColumna, campoAnchoColumna,
+                campoLargoLosaContrapiso, campoAnchoLosaContrapiso, campoaEspesorLosaContrapiso,
+                campoLargoLosaEntrepiso, campoAnchoLosaEntrepiso, campoEspesorLosaEntrepiso,
+                campoLargoVigas, campoAnchoVigas, campoEspesorVigas
+        );
+
+        // Desmarcar todos los checkboxes
+        Utilities.limpiarCheckboxes(jcbColumna, jcbLosaContrapiso, jcbLosaEntrepiso, jcbVigas);
+
+        // Deshabilitar todos los campos
+        deshabilitarTodosCampos();
     }
 
     /**
@@ -54,7 +76,6 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
     private void agregarListenerCheckboxes() {
         jcbColumna.addActionListener((e) -> {
             if (jcbColumna.isSelected()) {
-
                 // Deshabilitar los otros checkbox
                 jcbLosaContrapiso.setSelected(false);
                 jcbLosaEntrepiso.setSelected(false);
@@ -73,7 +94,6 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
 
         jcbLosaContrapiso.addActionListener((e) -> {
             if (jcbLosaContrapiso.isSelected()) {
-
                 // Deshabilitar los otros checkbox
                 jcbColumna.setSelected(false);
                 jcbLosaEntrepiso.setSelected(false);
@@ -92,7 +112,6 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
 
         jcbLosaEntrepiso.addActionListener((e) -> {
             if (jcbLosaEntrepiso.isSelected()) {
-
                 // Deshabilitar los otros checkbox
                 jcbColumna.setSelected(false);
                 jcbLosaContrapiso.setSelected(false);
@@ -111,7 +130,6 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
 
         jcbVigas.addActionListener((e) -> {
             if (jcbVigas.isSelected()) {
-
                 // Deshabilitar los otros checkbox
                 jcbColumna.setSelected(false);
                 jcbLosaContrapiso.setSelected(false);
@@ -154,6 +172,8 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
     private void habilitarCamposColumna() {
         campoAltoColumna.setEnabled(true);
         campoAnchoColumna.setEnabled(true);
+        // Enfocar el primer campo habilitado
+        campoAltoColumna.requestFocus();
     }
 
     private void deshabilitarCamposColumna() {
@@ -165,6 +185,8 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
         campoLargoLosaContrapiso.setEnabled(true);
         campoAnchoLosaContrapiso.setEnabled(true);
         campoaEspesorLosaContrapiso.setEnabled(true);
+        // Enfocar el primer campo habilitado
+        campoLargoLosaContrapiso.requestFocus();
     }
 
     private void deshabilitarCamposLosaContrapiso() {
@@ -177,6 +199,8 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
         campoLargoLosaEntrepiso.setEnabled(true);
         campoAnchoLosaEntrepiso.setEnabled(true);
         campoEspesorLosaEntrepiso.setEnabled(true);
+        // Enfocar el primer campo habilitado
+        campoLargoLosaEntrepiso.requestFocus();
     }
 
     private void deshabilitarCamposLosaEntrepiso() {
@@ -189,6 +213,8 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
         campoLargoVigas.setEnabled(true);
         campoAnchoVigas.setEnabled(true);
         campoEspesorVigas.setEnabled(true);
+        // Enfocar el primer campo habilitado
+        campoLargoVigas.requestFocus();
     }
 
     private void deshabilitarCamposVigas() {
@@ -644,7 +670,7 @@ public class IngresoDimensionesConcretoForm extends javax.swing.JFrame {
             // Crear el ElementoDTO con los datos ingresados
             ElementoDTO elemento = crearElementoDTO();
             coordinadorNegocio.setElementoActual(elemento);
-            
+
             this.dispose();
             coordinador.mostrarCalculoMaterialesConcreto();
         } catch (Exception ex) {

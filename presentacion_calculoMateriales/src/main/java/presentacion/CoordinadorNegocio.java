@@ -45,7 +45,7 @@ public class CoordinadorNegocio {
      * Subsistema para la gestión de la obra seleccionada.
      */
     private final IAdmObraSeleccionada admObraSeleccionada;
-    
+
     /**
      * Variable para almacenar el elemento actual.
      */
@@ -263,7 +263,7 @@ public class CoordinadorNegocio {
             throw new PresentacionException("Error al generar reporte: " + ex.getMessage(), ex);
         }
     }
-    
+
     /**
      * Valida que la dirección ingresada coincida con la obra en sesión.
      *
@@ -277,9 +277,9 @@ public class CoordinadorNegocio {
             throw new PresentacionException("Error al validar dirección: " + ex.getMessage(), ex);
         }
     }
-    
+
     /**
-     * Establece el elemento actual para realizar cálculos
+     * Establece el elemento actual para realizar cálculos.
      *
      * @param elemento Elemento a establecer
      */
@@ -288,12 +288,29 @@ public class CoordinadorNegocio {
     }
 
     /**
-     * Obtiene el elemento actual para realizar cálculos
+     * Obtiene el elemento actual para realizar cálculos.
      *
      * @return Elemento actual
      */
     public ElementoDTO getElementoActual() {
         return this.elementoActual;
+    }
+
+    /**
+     * Limpia el elemento actual. Útil cuando se inicia un nuevo proceso de
+     * cálculo.
+     */
+    public void limpiarElementoActual() {
+        this.elementoActual = null;
+    }
+
+    /**
+     * Inicia una nueva sesión de cálculo limpiando el elemento actual. Este
+     * método debe llamarse cuando el usuario inicia un nuevo cálculo para
+     * asegurar que no hay datos residuales de cálculos anteriores.
+     */
+    public void iniciarNuevaSesionCalculo() {
+        limpiarElementoActual();
     }
     
 }

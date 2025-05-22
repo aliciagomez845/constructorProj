@@ -39,8 +39,29 @@ public class SeleccionDatosForm extends javax.swing.JFrame {
         // Centrar la ventana
         this.setLocationRelativeTo(null);
 
+        // Limpiar cualquier elemento previo y iniciar nueva sesión de cálculo
+        coordinadorNegocio.iniciarNuevaSesionCalculo();
+
         // Agregar listeners para los checkboxes para que solo se pueda seleccionar uno
         agregarListenerCheckboxes();
+
+        // Asegurar que el formulario esté limpio al inicializar
+        limpiarFormulario();
+    }
+
+    /**
+     * Limpia todos los campos del formulario, asegurando que esté en estado
+     * inicial.
+     */
+    private void limpiarFormulario() {
+        // Limpiar campo de texto
+        Utilities.limpiarCampos(campoDireccion);
+
+        // Desmarcar todos los checkboxes
+        Utilities.limpiarCheckboxes(jcbConcreto, jcbMorterosNivelacion, jcbMorterosMamposteria);
+
+        // Enfocar el campo de dirección
+        campoDireccion.requestFocus();
     }
 
     /**
@@ -235,7 +256,7 @@ public class SeleccionDatosForm extends javax.swing.JFrame {
 
             // Verificar que la dirección coincida con la obra en sesión
             coordinadorNegocio.validarDireccionObra(direccionIngresada);
-            
+
             // Determinar qué actividad fue seleccionada y dirigir al usuario a la pantalla correspondiente
             if (jcbConcreto.isSelected()) {
                 this.dispose();
@@ -258,6 +279,8 @@ public class SeleccionDatosForm extends javax.swing.JFrame {
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
         if (Utilities.mostrarConfirmacion("¿Desea volver a la página de inicio? Los datos ingresados se perderán.")) {
+            // Limpiar el elemento actual antes de navegar
+            coordinadorNegocio.limpiarElementoActual();
             this.dispose();
             coordinador.mostrarInicioCalculos();
         }

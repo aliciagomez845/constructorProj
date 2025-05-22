@@ -4,6 +4,7 @@
  */
 package utilities;
 
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
@@ -11,7 +12,8 @@ import javax.swing.JTextField;
  * Clase de utilidades para la capa de presentación.
  *
  * Proporciona funciones de utilidad comunes para la interfaz de usuario, como
- * validaciones de entrada, formateo de datos y diálogos de mensaje.
+ * validaciones de entrada, formateo de datos, diálogos de mensaje y limpieza de
+ * componentes.
  *
  * @author Alejandra García Preciado - 252444
  */
@@ -30,7 +32,7 @@ public class Utilities {
         }
 
         try {
-            Double.parseDouble(texto);
+            Double.valueOf(texto);
             return true;
         } catch (NumberFormatException ex) {
             return false;
@@ -50,7 +52,7 @@ public class Utilities {
         }
 
         try {
-            Integer.parseInt(texto);
+            Integer.valueOf(texto);
             return true;
         } catch (NumberFormatException ex) {
             return false;
@@ -167,14 +169,62 @@ public class Utilities {
     }
 
     /**
-     * Limpia los campos de texto especificados.
+     * Limpia los campos de texto especificados, estableciendo su contenido a
+     * una cadena vacía.
      *
      * @param textFields Campos de texto a limpiar
      */
     public static void limpiarCampos(JTextField... textFields) {
         for (JTextField textField : textFields) {
-            textField.setText("");
+            if (textField != null) {
+                textField.setText("");
+            }
         }
     }
 
+    /**
+     * Desmarca todos los checkboxes especificados.
+     *
+     * @param checkBoxes Checkboxes a desmarcar
+     */
+    public static void limpiarCheckboxes(JCheckBox... checkBoxes) {
+        for (JCheckBox checkBox : checkBoxes) {
+            if (checkBox != null) {
+                checkBox.setSelected(false);
+            }
+        }
+    }
+
+    /**
+     * Limpia tanto campos de texto como checkboxes en una sola llamada. Útil
+     * para limpiar formularios completos.
+     *
+     * @param textFields Campos de texto a limpiar
+     * @param checkBoxes Checkboxes a desmarcar
+     */
+    public static void limpiarFormulario(JTextField[] textFields, JCheckBox[] checkBoxes) {
+        if (textFields != null) {
+            limpiarCampos(textFields);
+        }
+        if (checkBoxes != null) {
+            limpiarCheckboxes(checkBoxes);
+        }
+    }
+
+    /**
+     * Resetea un formulario limpiando campos de texto y checkboxes, y
+     * opcionalmente enfocando un campo específico.
+     *
+     * @param campoEnfoque Campo que recibirá el foco después de limpiar (puede
+     * ser null)
+     * @param textFields Campos de texto a limpiar
+     * @param checkBoxes Checkboxes a desmarcar
+     */
+    public static void resetearFormulario(JTextField campoEnfoque, JTextField[] textFields, JCheckBox[] checkBoxes) {
+        limpiarFormulario(textFields, checkBoxes);
+
+        if (campoEnfoque != null) {
+            campoEnfoque.requestFocus();
+        }
+    }
 }

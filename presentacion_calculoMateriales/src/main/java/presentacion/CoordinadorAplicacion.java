@@ -8,98 +8,135 @@ import excepciones.PresentacionException;
 import negocio_dto.ElementoDTO;
 
 /**
+ * Coordinador de la capa de presentación.
+ *
+ * Esta clase se encarga de la navegación entre formularios y coordina toda la
+ * comunicación entre las diferentes pantallas del sistema. Implementa el patrón
+ * Singleton y asegura que los formularios siempre se inicialicen limpios cuando
+ * se navega entre ellos.
  *
  * @author Alejandra García Preciado - 252444
  */
 public class CoordinadorAplicacion {
-    
+
     private static CoordinadorAplicacion coordinador;
     private ObraSeleccionadaForm obraSeleccionadaForm;
-    
-    private InicioCalculosForm inicioCalculosForm;
-    private SeleccionDatosForm seleccionDatosForm;
-    private IngresoDimensionesConcretoForm ingresoDimensionesConcretoForm;
-    private IngresoDimensionesNivelacionForm ingresoDimensionesNivelacionForm;
-    private IngresoDimensionesMamposteriaForm ingresoDimensionesMamposteriaForm;
-    private CalculoMaterialesConcretoForm calculoMaterialesConcretoForm;
-    private CalculoMaterialesNivelacionForm calculoMaterialesNivelacionForm;
-    private CalculoMaterialesMamposteriaForm calculoMaterialesMamposteriaForm;
-    
+
+    /**
+     * Constructor privado para implementar el patrón Singleton.
+     */
     private CoordinadorAplicacion() {
     }
-    
+
+    /**
+     * Obtiene la instancia única del coordinador (patrón Singleton).
+     *
+     * @return La instancia única del coordinador
+     */
     public static CoordinadorAplicacion getInstancia() {
         if (coordinador == null) {
             coordinador = new CoordinadorAplicacion();
         }
         return coordinador;
     }
-    
+
+    /**
+     * Muestra el formulario de obra seleccionada.
+     *
+     * @throws PresentacionException Si ocurre un error al mostrar el formulario
+     */
     public void mostrarObraSeleccionada() throws PresentacionException {
         if (obraSeleccionadaForm == null) {
             obraSeleccionadaForm = new ObraSeleccionadaForm();
         }
         obraSeleccionadaForm.setVisible(true);
     }
-    
+
+    /**
+     * Muestra el formulario de inicio de cálculos. Siempre crea una nueva
+     * instancia para asegurar que esté limpio.
+     */
     public void mostrarInicioCalculos() {
-        if (inicioCalculosForm == null) {
-            inicioCalculosForm = new InicioCalculosForm();
-        }
+        // Siempre crear una nueva instancia para asegurar que esté limpia
+        InicioCalculosForm inicioCalculosForm = new InicioCalculosForm();
         inicioCalculosForm.setVisible(true);
     }
-    
+
+    /**
+     * Muestra el formulario de selección de datos. Siempre crea una nueva
+     * instancia para asegurar que esté limpio.
+     */
     public void mostrarSeleccionDatos() {
-        if (seleccionDatosForm == null) {
-            seleccionDatosForm = new SeleccionDatosForm();
-        }
+        // Siempre crear una nueva instancia para asegurar que esté limpia
+        SeleccionDatosForm seleccionDatosForm = new SeleccionDatosForm();
         seleccionDatosForm.setVisible(true);
     }
-    
+
+    /**
+     * Muestra el formulario de ingreso de dimensiones para concreto. Siempre
+     * crea una nueva instancia para asegurar que esté limpio.
+     */
     public void mostrarIngresoDimensionesConcreto() {
-        if (ingresoDimensionesConcretoForm == null) {
-            ingresoDimensionesConcretoForm = new IngresoDimensionesConcretoForm();
-        }
+        // Siempre crear una nueva instancia para asegurar que esté limpia
+        IngresoDimensionesConcretoForm ingresoDimensionesConcretoForm = new IngresoDimensionesConcretoForm();
         ingresoDimensionesConcretoForm.setVisible(true);
     }
-    
+
+    /**
+     * Muestra el formulario de ingreso de dimensiones para nivelación. Siempre
+     * crea una nueva instancia para asegurar que esté limpio.
+     */
     public void mostrarIngresoDimensionesNivelacion() {
-        if (ingresoDimensionesNivelacionForm == null) {
-            ingresoDimensionesNivelacionForm = new IngresoDimensionesNivelacionForm();
-        }
+        // Siempre crear una nueva instancia para asegurar que esté limpia
+        IngresoDimensionesNivelacionForm ingresoDimensionesNivelacionForm = new IngresoDimensionesNivelacionForm();
         ingresoDimensionesNivelacionForm.setVisible(true);
     }
-    
+
+    /**
+     * Muestra el formulario de ingreso de dimensiones para mampostería. Siempre
+     * crea una nueva instancia para asegurar que esté limpio.
+     */
     public void mostrarIngresoDimensionesMamposteria() {
-        if (ingresoDimensionesMamposteriaForm == null) {
-            ingresoDimensionesMamposteriaForm = new IngresoDimensionesMamposteriaForm();
-        }
+        // Siempre crear una nueva instancia para asegurar que esté limpia
+        IngresoDimensionesMamposteriaForm ingresoDimensionesMamposteriaForm = new IngresoDimensionesMamposteriaForm();
         ingresoDimensionesMamposteriaForm.setVisible(true);
     }
-    
+
+    /**
+     * Muestra el formulario de cálculo de materiales para concreto. Siempre
+     * crea una nueva instancia para asegurar que esté limpio.
+     */
     public void mostrarCalculoMaterialesConcreto() {
-        if (calculoMaterialesConcretoForm == null) {
-            calculoMaterialesConcretoForm = new CalculoMaterialesConcretoForm();
-        }
+        // Siempre crear una nueva instancia para asegurar que esté limpia
+        CalculoMaterialesConcretoForm calculoMaterialesConcretoForm = new CalculoMaterialesConcretoForm();
         calculoMaterialesConcretoForm.setVisible(true);
     }
-    
+
+    /**
+     * Muestra el formulario de cálculo de materiales para nivelación. Siempre
+     * crea una nueva instancia para asegurar que esté limpio.
+     */
     public void mostrarCalculoMaterialesNivelacion() {
-        if (calculoMaterialesNivelacionForm == null) {
-            calculoMaterialesNivelacionForm = new CalculoMaterialesNivelacionForm();
-        }
+        // Siempre crear una nueva instancia para asegurar que esté limpia
+        CalculoMaterialesNivelacionForm calculoMaterialesNivelacionForm = new CalculoMaterialesNivelacionForm();
         calculoMaterialesNivelacionForm.setVisible(true);
     }
-    
+
+    /**
+     * Muestra el formulario de cálculo de materiales para mampostería. Siempre
+     * crea una nueva instancia para asegurar que esté limpio.
+     */
     public void mostrarCalculoMaterialesMamposteria() {
-        if (calculoMaterialesMamposteriaForm == null) {
-            calculoMaterialesMamposteriaForm = new CalculoMaterialesMamposteriaForm();
-        }
+        // Siempre crear una nueva instancia para asegurar que esté limpia
+        CalculoMaterialesMamposteriaForm calculoMaterialesMamposteriaForm = new CalculoMaterialesMamposteriaForm();
         calculoMaterialesMamposteriaForm.setVisible(true);
     }
-    
+
     /**
      * Realiza un cálculo de materiales para el elemento actual.
+     *
+     * Este método determina qué tipo de pantalla mostrar basándose en el tipo
+     * de elemento y delega la responsabilidad al método correspondiente.
      *
      * @param elemento Elemento para el que se calculará
      */
@@ -126,34 +163,5 @@ public class CoordinadorAplicacion {
                 break;
         }
     }
-    
-    
-    
-    public void reset() {
-        if (inicioCalculosForm != null) {
-            inicioCalculosForm = null;
-        }
-        if (seleccionDatosForm != null) {
-            seleccionDatosForm = null;
-        }
-        if (ingresoDimensionesConcretoForm != null) {
-            ingresoDimensionesConcretoForm = null;
-        }
-        if (ingresoDimensionesNivelacionForm != null) {
-            ingresoDimensionesNivelacionForm = null;
-        }
-        if (ingresoDimensionesMamposteriaForm != null) {
-            ingresoDimensionesMamposteriaForm = null;
-        }
-        if (calculoMaterialesConcretoForm != null) {
-            calculoMaterialesConcretoForm = null;
-        }
-        if (calculoMaterialesNivelacionForm != null) {
-            calculoMaterialesNivelacionForm = null;
-        }
-        if (calculoMaterialesMamposteriaForm != null) {
-            calculoMaterialesMamposteriaForm = null;
-        }
-    }
-    
+
 }
